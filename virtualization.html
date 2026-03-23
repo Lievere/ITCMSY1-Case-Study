@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Virtualization & Containerization — IT COMSEE Corp.</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="virtualization.css"/>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-logo">IT COMSEE Corp.</div>
+  <div class="nav-links">
+    <a href="#">Overview</a>
+    <a href="#">Architecture</a>
+    <a href="#">Storage</a>
+    <a href="#">Network</a>
+    <a href="#" class="active">Virtualization</a>
+    <a href="#">Performance</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-label">On This Page</div>
+    <a href="#decision"   class="sbl active"><span class="dot"></span>Approach Decision</a>
+    <a href="#hypervisor" class="sbl"><span class="dot"></span>Hypervisor Selection</a>
+    <a href="#diagram"    class="sbl"><span class="dot"></span>Architecture Diagram</a>
+    <a href="#tools"      class="sbl"><span class="dot"></span>Tools & Justification</a>
+    <a href="#security"   class="sbl"><span class="dot"></span>Security</a>
+    <a href="#analysis"   class="sbl"><span class="dot"></span>Advantages & Limits</a>
+    <a href="#budget"     class="sbl"><span class="dot"></span>Budget Breakdown</a>
+    <a href="#summary"    class="sbl"><span class="dot"></span>Summary</a>
+    <a href="#references" class="sbl"><span class="dot"></span>References</a>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+      <div class="progress-label">Reading progress</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+
+    <header class="hero">
+      <div class="page-tag">Part 5 — Virtualization &amp; Containerization</div>
+      <h1 class="hero-title">Virtual Infrastructure<br/><span>Design &amp; Strategy</span></h1>
+      <p class="hero-sub">
+        IT COMSEE Corp. runs three physical servers. Instead of dedicating each server to one job,
+        we use virtualization to run many services on the same hardware simultaneously — securely,
+        efficiently, and with automatic backup if something goes wrong.
+      </p>
+      <div class="author-badge">✍ Authored by <strong>[ Group Member Name ]</strong> &nbsp;|&nbsp; Role: Virtualization Analyst</div>
+      <div class="hero-stats">
+        <div class="stat-chip">
+          <div class="sc-val"><span class="ctr" data-t="3">0</span></div>
+          <div class="sc-lbl">Physical Servers</div>
+          <div class="sc-tip">Three physical servers work together as one team. If any server fails, the other two automatically keep everything running without anyone noticing.</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val"><span class="ctr" data-t="192">0</span> GB</div>
+          <div class="sc-lbl">Shared Memory Pool</div>
+          <div class="sc-tip">Each server has 64 GB of RAM. Together that is 192 GB — all of it available to be shared across all services as demand shifts throughout the day.</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val">₱<span class="ctr" data-t="1.5" data-float="1">0</span>M</div>
+          <div class="sc-lbl">Budget Allocated</div>
+          <div class="sc-tip">₱1,500,000 of the total ₱10,000,000 project budget goes to virtualization hardware and software. That is 15 cents out of every peso spent.</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val"><span class="ctr" data-t="15">0</span>%</div>
+          <div class="sc-lbl">of Total Budget</div>
+          <div class="sc-tip">At 15% of the budget, virtualization unlocks the ability to run the equivalent of 8–10 separate servers' worth of services on just 3 physical machines.</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ══ 01 DECISION ══ -->
+      <section class="section" id="decision">
+        <div class="section-label">
+          <span class="section-num">01</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Approach Decision</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">What Approach Did We Choose — and Why?</h2>
+
+        <p>Before deciding how to build the system, we evaluated three different approaches to running software on servers. Think of it like deciding how to organize office space: do you give each employee a private room (Virtual Machines), an open-plan desk (Containers), or a mix of both depending on the role (Hybrid)? Each option has trade-offs.</p>
+
+        <div class="decision-banner">
+          <div class="decision-icon">⚡</div>
+          <div class="decision-text">
+            <h3>Our Recommendation</h3>
+            <p>We recommend a <strong style="color:var(--accent)">Hybrid Model</strong> — critical services like user logins and databases get their own private, isolated environment (Virtual Machines), while lighter services like the company website and monitoring tools run in a more shared, efficient space (Containers). This is the industry standard approach for organizations of IT COMSEE Corp.'s size, and it keeps costs down without sacrificing security where it matters.<br/><br/>As noted by Tanenbaum &amp; Bos (2015), hybrid virtualization allows organizations to match workload isolation levels to actual security and performance requirements, rather than applying a one-size-fits-all solution.</p>
+          </div>
+        </div>
+
+        <div class="approach-grid">
+
+          <div class="approach-card vm">
+            <div class="card-header">
+              <div class="card-icon">🖥</div>
+              <div><div class="card-title">Virtual Machines</div><div class="card-sub">KVM via Proxmox VE</div></div>
+            </div>
+            <span class="pill partial">Partially Adopted</span>
+            <p class="card-desc">Imagine a private office with its own lock, its own power switch, and completely soundproofed walls. A Virtual Machine (VM) is exactly that — a fully separate computer running inside a physical one, completely isolated from everything else.</p>
+            <div class="pro-con-grid">
+              <div class="pro">Fully isolated — one VM can't affect another</div>
+              <div class="con">Uses more memory (~1–2 GB per VM)</div>
+              <div class="pro">Can take instant snapshots (like saving a game)</div>
+              <div class="con">Takes a minute or two to start up</div>
+              <div class="pro">Strongest security boundary available</div>
+              <div class="con">More resources needed per service</div>
+            </div>
+          </div>
+
+          <div class="approach-card con">
+            <div class="card-header">
+              <div class="card-icon">📦</div>
+              <div><div class="card-title">Containers</div><div class="card-sub">Docker + LXC</div></div>
+            </div>
+            <span class="pill selected">Partially Adopted</span>
+            <p class="card-desc">A container is like a packed lunch box — everything the service needs is bundled together, but it shares the same kitchen (operating system) as everyone else. Much lighter and faster than a VM, but with slightly less separation between services.</p>
+            <div class="pro-con-grid">
+              <div class="pro">Very lightweight (uses as little as 50 MB)</div>
+              <div class="con">Shares the OS with other containers</div>
+              <div class="pro">Starts in under a second</div>
+              <div class="con">Not ideal for sensitive standalone systems</div>
+              <div class="pro">Easy to copy and move between servers</div>
+              <div class="con">Requires careful network configuration</div>
+            </div>
+          </div>
+
+          <div class="approach-card hyb">
+            <div class="card-header">
+              <div class="card-icon">🔀</div>
+              <div><div class="card-title">Hybrid (Our Choice)</div><div class="card-sub">VMs + Containers · Proxmox</div></div>
+            </div>
+            <span class="pill selected">✔ Adopted</span>
+            <p class="card-desc">Use private offices (VMs) for the most sensitive work — user accounts, databases, file storage. Use shared open-plan desks (Containers) for everything else. The result is the right level of security where it counts, without wasting resources where it doesn't.</p>
+            <div class="pro-con-grid">
+              <div class="pro">Security matched to the actual risk level</div>
+              <div class="con">More complex to set up initially</div>
+              <div class="pro">Gets the most out of 3 servers</div>
+              <div class="con">Requires trained IT staff</div>
+              <div class="pro">Can grow without buying new hardware</div>
+              <div class="pro">Ready to upgrade to Kubernetes later</div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ══ 02 HYPERVISOR ══ -->
+      <section class="section" id="hypervisor">
+        <div class="section-label">
+          <span class="section-num">02</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Hypervisor Selection</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">The Engine Behind Everything: Proxmox VE</h2>
+
+        <p>A <strong>hypervisor</strong> is the software that makes virtualization possible — it sits directly on the physical server hardware and creates and manages all the Virtual Machines running on top of it. Think of it as the building manager for a high-rise apartment block: it decides who gets which floor, makes sure no tenant disturbs another, and handles emergencies.</p>
+
+        <div class="callout blue">
+          <div class="callout-label">Quick Concept</div>
+          <p>There are two kinds of hypervisors. A <strong>Type 1</strong> hypervisor runs directly on the hardware, like a foundation — fast and efficient. A <strong>Type 2</strong> runs on top of a regular operating system, like software inside Windows — easier to set up but slower and unsuitable for production servers. We always use Type 1 for real infrastructure.</p>
+        </div>
+
+        <div class="tab-bar" style="margin-top:1.3rem">
+          <button class="tab-btn active" onclick="switchTab(this,'t-compare')">Side-by-Side Comparison</button>
+          <button class="tab-btn" onclick="switchTab(this,'t-why')">The Free Software Question</button>
+          <button class="tab-btn" onclick="switchTab(this,'t-cluster')">How the 3 Servers Work Together</button>
+        </div>
+
+        <div class="tab-panel active" id="t-compare">
+          <p style="margin-bottom:.8rem;font-size:.87rem;color:var(--muted)">We evaluated four hypervisors. Here is how they compare on the factors that matter most for IT COMSEE Corp.</p>
+          <table class="hyp-table">
+            <thead>
+              <tr><th>Option</th><th>Type</th><th>Annual License Cost</th><th>VMs</th><th>Containers</th><th>Web Dashboard</th><th>Decision</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong style="color:var(--heading)">Proxmox VE 8.x</strong></td><td><span class="badge type1">Type 1</span></td><td>Free (optional ₱18k–₱36k/yr)</td><td>✔ Full</td><td>✔ Native</td><td>✔</td><td><span class="badge chosen">✔ Chosen</span></td></tr>
+              <tr><td><strong style="color:var(--heading)">VMware ESXi 8</strong></td><td><span class="badge type1">Type 1</span></td><td>₱180,000–₱450,000/yr per server</td><td>✔ Full</td><td>Add-on cost</td><td>✔</td><td><span class="badge type2">Too expensive</span></td></tr>
+              <tr><td><strong style="color:var(--heading)">Microsoft Hyper-V</strong></td><td><span class="badge type1">Type 1</span></td><td>Bundled with Windows Server (~₱90k+)</td><td>✔ Full</td><td>Limited</td><td>Partial</td><td><span class="badge type2">Considered</span></td></tr>
+              <tr><td><strong style="color:var(--heading)">VirtualBox</strong></td><td><span class="badge type2">Type 2</span></td><td>Free</td><td>✔</td><td>No</td><td>✔</td><td><span class="badge type2">For testing only</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tab-panel" id="t-why">
+          <div class="highlight-block accent" style="margin-bottom:1rem">
+            <h3 class="sub-title">A Fair Question Worth Answering Honestly</h3>
+            <p>When we say Proxmox is "free," it is natural to wonder: what's the catch? In the business world, free software sometimes means poor support, hidden risks, or software that gets abandoned. So here is a completely honest breakdown — the good and the not-so-good — tailored to IT COMSEE Corp.'s actual situation.</p>
+          </div>
+          <div class="proxmox-honest">
+            <div class="ph-block good">
+              <h4>What Proxmox Gets Right</h4>
+              <ul class="ph-list good">
+                <li>Full feature set including HA clustering and live server migration — no premium tier required</li>
+                <li>Web dashboard is polished and on par with paid enterprise tools like VMware vCenter</li>
+                <li>Actively developed with frequent security updates and a large worldwide user community</li>
+                <li>Saves the organization ₱540,000–₱1,350,000 per year compared to VMware ESXi licensing across 3 servers</li>
+                <li>Optional paid subscription (₱18k–₱36k/yr for all 3 nodes) unlocks vendor support and priority patches</li>
+                <li>Deployed in production by thousands of hospitals, universities, ISPs, and businesses globally (Proxmox Server Solutions, 2024)</li>
+              </ul>
+            </div>
+            <div class="ph-block bad">
+              <h4>Limitations We're Being Upfront About</h4>
+              <ul class="ph-list bad">
+                <li><strong style="color:var(--text)">No phone support by default</strong> — if something breaks at 3 AM, the free tier relies on community forums rather than a vendor helpline</li>
+                <li><strong style="color:var(--text)">Learning curve</strong> — IT staff used to Windows Server may need training time to get comfortable with Proxmox's Linux-based environment</li>
+                <li><strong style="color:var(--text)">Security patch timing</strong> — on the free tier, critical patches reach you slightly later than paid subscribers who get them first</li>
+                <li><strong style="color:var(--text)">Smaller partner ecosystem</strong> — fewer third-party software vendors have Proxmox certifications compared to VMware's longer-established marketplace</li>
+                <li><strong style="color:var(--text)">Microsoft workloads</strong> — running licensed Microsoft software in VMs requires additional configuration steps that are straightforward but not automatic</li>
+              </ul>
+            </div>
+          </div>
+          <div class="verdict-box">
+            <h4>The Bottom Line</h4>
+            <p>IT COMSEE Corp. is an 80–120 person organization — not a global bank that requires guaranteed 15-minute vendor response times. The limitations above are real, but they are all manageable at this scale. More importantly, the money saved on VMware licenses (₱540k–₱1.35M per year) is money that stays in the hardware budget, giving the organization better servers instead of paying for a brand name.</p>
+            <p style="margin:0">Our recommendation: <strong style="color:var(--heading)">purchase the Basic Proxmox subscription for all three servers</strong> at approximately ₱18,000–₱36,000 per year total. This closes the biggest practical gap — priority security patches — at a fraction of what VMware would cost. If the company grows significantly in the future, migrating to a commercial platform is straightforward.</p>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="t-cluster">
+          <div class="highlight-block">
+            <h3 class="sub-title">Three Servers, One Team</h3>
+            <p>The three servers do not operate independently. They are connected into a single <strong style="color:var(--accent)">Proxmox Cluster</strong> — meaning they are always aware of each other, always sharing information, and always ready to cover for one another. It is like a three-person relay team: if one runner stumbles, the next one grabs the baton and keeps going.</p>
+            <p style="margin-bottom:.5rem">This cluster setup, managed through the Corosync cluster engine (Proxmox Server Solutions, 2024), gives the organization four critical capabilities:</p>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:0.5rem;margin-top:0.5rem">
+              <li style="display:flex;gap:0.6rem;font-size:0.85rem"><span style="color:var(--green);font-weight:700">✔</span><span><strong style="color:var(--heading)">One Dashboard for Everything</strong> — all three servers and all their virtual machines are managed from a single web page. No need to log into each server separately.</span></li>
+              <li style="display:flex;gap:0.6rem;font-size:0.85rem"><span style="color:var(--green);font-weight:700">✔</span><span><strong style="color:var(--heading)">Maintenance Without Downtime</strong> — before rebooting a server for updates, its virtual machines can be silently moved to another server. Employees never notice.</span></li>
+              <li style="display:flex;gap:0.6rem;font-size:0.85rem"><span style="color:var(--green);font-weight:700">✔</span><span><strong style="color:var(--heading)">Automatic Recovery</strong> — if a server fails unexpectedly, its virtual machines automatically restart on one of the other two servers within 30–60 seconds.</span></li>
+              <li style="display:flex;gap:0.6rem;font-size:0.85rem"><span style="color:var(--green);font-weight:700">✔</span><span><strong style="color:var(--heading)">Shared File Storage</strong> — all three servers are connected to the same NAS (Network-Attached Storage) unit, so virtual machines can be moved between servers without copying any data.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 03 DIAGRAM ══ -->
+      <section class="section" id="diagram">
+        <div class="section-label">
+          <span class="section-num">03</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Architecture Diagram</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">How the Three Servers Are Organized</h2>
+        <p>The diagram below maps out exactly what runs where. Each column is one physical server. The boxes inside each column are the virtual machines and containers running on it. The bottom shows the shared storage unit that all three servers connect to — this is what allows services to move between servers seamlessly.</p>
+
+        <div class="callout">
+          <div class="callout-label">How to Read This Diagram</div>
+          <p><strong>Blue boxes</strong> = Virtual Machines (full isolated environments). <strong>Green boxes</strong> = Containers (lightweight shared environments). <strong>Server 3</strong> is intentionally kept mostly empty — it is the safety net that absorbs services if either Server 1 or Server 2 encounters a problem.</p>
+        </div>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 940 580" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:620px;height:auto;font-family:'JetBrains Mono',monospace;">
+            <defs><pattern id="g" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0L0 0 0 28" fill="none" stroke="#192030" stroke-width=".6"/></pattern></defs>
+            <rect width="940" height="580" fill="url(#g)" rx="6"/>
+            <rect x="20" y="36" width="900" height="492" rx="10" fill="none" stroke="#1e2a38" stroke-width="1.5" stroke-dasharray="6,4"/>
+            <text x="40" y="30" fill="#00c8ff" font-size="9.5" font-weight="700" letter-spacing="2">PROXMOX CLUSTER — 3 NODE HIGH AVAILABILITY</text>
+            <!-- SERVER 1 -->
+            <rect x="35" y="52" width="270" height="444" rx="8" fill="#0f1318" stroke="#1e2a38" stroke-width="1.5"/>
+            <rect x="35" y="52" width="270" height="28" rx="8" fill="#00c8ff" fill-opacity=".1"/>
+            <text x="170" y="71" fill="#00c8ff" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="1.5">SERVER 1 — PRIMARY</text>
+            <rect x="45" y="88" width="250" height="34" rx="5" fill="#161b24" stroke="#1e2a38"/>
+            <text x="170" y="101" fill="#5a6a7e" font-size="7" text-anchor="middle" letter-spacing="1">HARDWARE</text>
+            <text x="170" y="114" fill="#d4dde8" font-size="7.5" text-anchor="middle">Intel Xeon E-2388G · 64 GB ECC</text>
+            <rect x="45" y="129" width="250" height="19" rx="4" fill="#00c8ff" fill-opacity=".07" stroke="#00c8ff" stroke-opacity=".2"/>
+            <text x="170" y="142" fill="#00c8ff" font-size="7.5" text-anchor="middle" font-weight="700" letter-spacing="1">PROXMOX VE 8 — KVM + LXC</text>
+            <rect x="45" y="155" width="250" height="13" rx="3" fill="#00c8ff" fill-opacity=".04" stroke="#00c8ff" stroke-opacity=".1"/>
+            <text x="170" y="165" fill="#00c8ff" font-size="6.5" text-anchor="middle" letter-spacing="1.5">KVM VIRTUAL MACHINES</text>
+            <rect x="50" y="173" width="113" height="68" rx="5" fill="#161b24" stroke="#00c8ff" stroke-opacity=".3"/>
+            <text x="106" y="186" fill="#00c8ff" font-size="7" text-anchor="middle" font-weight="700">VM — AD / LDAP</text>
+            <text x="106" y="197" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Ubuntu 22 LTS</text>
+            <text x="106" y="208" fill="#5a6a7e" font-size="6.5" text-anchor="middle">4 vCPU · 8 GB</text>
+            <text x="106" y="219" fill="#5a6a7e" font-size="6.5" text-anchor="middle">100 GB vDisk</text>
+            <text x="106" y="231" fill="#00ffa3" font-size="6.5" text-anchor="middle">User Login System</text>
+            <rect x="172" y="173" width="113" height="68" rx="5" fill="#161b24" stroke="#00c8ff" stroke-opacity=".3"/>
+            <text x="228" y="186" fill="#00c8ff" font-size="7" text-anchor="middle" font-weight="700">VM — FILE SERVER</text>
+            <text x="228" y="197" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Ubuntu 22 LTS</text>
+            <text x="228" y="208" fill="#5a6a7e" font-size="6.5" text-anchor="middle">4 vCPU · 8 GB</text>
+            <text x="228" y="219" fill="#5a6a7e" font-size="6.5" text-anchor="middle">NAS-Mounted</text>
+            <text x="228" y="231" fill="#00ffa3" font-size="6.5" text-anchor="middle">Shared Folders</text>
+            <rect x="45" y="249" width="250" height="13" rx="3" fill="#00ffa3" fill-opacity=".04" stroke="#00ffa3" stroke-opacity=".12"/>
+            <text x="170" y="259" fill="#00ffa3" font-size="6.5" text-anchor="middle" letter-spacing="1.5">LXC CONTAINERS</text>
+            <rect x="50"  y="268" width="74" height="60" rx="4" fill="#161b24" stroke="#00ffa3" stroke-opacity=".22"/>
+            <text x="87"  y="281" fill="#00ffa3" font-size="7" text-anchor="middle" font-weight="700">Nginx</text>
+            <text x="87"  y="292" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Web Proxy</text>
+            <text x="87"  y="303" fill="#5a6a7e" font-size="6.5" text-anchor="middle">1 vCPU</text>
+            <text x="87"  y="314" fill="#5a6a7e" font-size="6.5" text-anchor="middle">512 MB · 10 GB</text>
+            <rect x="133" y="268" width="74" height="60" rx="4" fill="#161b24" stroke="#00ffa3" stroke-opacity=".22"/>
+            <text x="170" y="281" fill="#00ffa3" font-size="7" text-anchor="middle" font-weight="700">Prometheus</text>
+            <text x="170" y="292" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Monitoring</text>
+            <text x="170" y="303" fill="#5a6a7e" font-size="6.5" text-anchor="middle">1 vCPU</text>
+            <text x="170" y="314" fill="#5a6a7e" font-size="6.5" text-anchor="middle">1 GB · 20 GB</text>
+            <rect x="216" y="268" width="74" height="60" rx="4" fill="#161b24" stroke="#00ffa3" stroke-opacity=".22"/>
+            <text x="253" y="281" fill="#00ffa3" font-size="7" text-anchor="middle" font-weight="700">Grafana</text>
+            <text x="253" y="292" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Dashboards</text>
+            <text x="253" y="303" fill="#5a6a7e" font-size="6.5" text-anchor="middle">1 vCPU</text>
+            <text x="253" y="314" fill="#5a6a7e" font-size="6.5" text-anchor="middle">512 MB · 10 GB</text>
+            <rect x="45" y="338" width="250" height="19" rx="4" fill="#161b24" stroke="#1e2a38"/>
+            <text x="170" y="351" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2× Bonded 1 GbE NIC → Core Switch</text>
+            <rect x="45" y="363" width="250" height="19" rx="4" fill="#161b24" stroke="#1e2a38"/>
+            <text x="170" y="376" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2× 1.92 TB NVMe ZFS Mirror + NAS mount</text>
+            <!-- SERVER 2 -->
+            <rect x="335" y="52" width="270" height="444" rx="8" fill="#0f1318" stroke="#1e2a38" stroke-width="1.5"/>
+            <rect x="335" y="52" width="270" height="28" rx="8" fill="#00c8ff" fill-opacity=".1"/>
+            <text x="470" y="71" fill="#00c8ff" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="1.5">SERVER 2 — COMPUTE</text>
+            <rect x="345" y="88" width="250" height="34" rx="5" fill="#161b24" stroke="#1e2a38"/>
+            <text x="470" y="101" fill="#5a6a7e" font-size="7" text-anchor="middle" letter-spacing="1">HARDWARE</text>
+            <text x="470" y="114" fill="#d4dde8" font-size="7.5" text-anchor="middle">Intel Xeon E-2388G · 64 GB ECC</text>
+            <rect x="345" y="129" width="250" height="19" rx="4" fill="#00c8ff" fill-opacity=".07" stroke="#00c8ff" stroke-opacity=".2"/>
+            <text x="470" y="142" fill="#00c8ff" font-size="7.5" text-anchor="middle" font-weight="700" letter-spacing="1">PROXMOX VE 8 — KVM + LXC</text>
+            <rect x="345" y="155" width="250" height="13" rx="3" fill="#00c8ff" fill-opacity=".04" stroke="#00c8ff" stroke-opacity=".1"/>
+            <text x="470" y="165" fill="#00c8ff" font-size="6.5" text-anchor="middle" letter-spacing="1.5">KVM VIRTUAL MACHINES</text>
+            <rect x="350" y="173" width="113" height="68" rx="5" fill="#161b24" stroke="#00c8ff" stroke-opacity=".3"/>
+            <text x="406" y="186" fill="#00c8ff" font-size="7" text-anchor="middle" font-weight="700">VM — DATABASE</text>
+            <text x="406" y="197" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Ubuntu 22 LTS</text>
+            <text x="406" y="208" fill="#5a6a7e" font-size="6.5" text-anchor="middle">8 vCPU · 16 GB</text>
+            <text x="406" y="219" fill="#5a6a7e" font-size="6.5" text-anchor="middle">500 GB vDisk</text>
+            <text x="406" y="231" fill="#00ffa3" font-size="6.5" text-anchor="middle">Company Data Store</text>
+            <rect x="472" y="173" width="113" height="68" rx="5" fill="#161b24" stroke="#00c8ff" stroke-opacity=".3"/>
+            <text x="528" y="186" fill="#00c8ff" font-size="7" text-anchor="middle" font-weight="700">VM — BACKUP SRV</text>
+            <text x="528" y="197" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Proxmox BS</text>
+            <text x="528" y="208" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2 vCPU · 8 GB</text>
+            <text x="528" y="219" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Backup target</text>
+            <text x="528" y="231" fill="#00ffa3" font-size="6.5" text-anchor="middle">Daily Auto-Backup</text>
+            <rect x="345" y="249" width="250" height="13" rx="3" fill="#00ffa3" fill-opacity=".04" stroke="#00ffa3" stroke-opacity=".12"/>
+            <text x="470" y="259" fill="#00ffa3" font-size="6.5" text-anchor="middle" letter-spacing="1.5">DOCKER CONTAINERS (App Services)</text>
+            <rect x="350" y="268" width="74" height="60" rx="4" fill="#161b24" stroke="#00ffa3" stroke-opacity=".22"/>
+            <text x="387" y="281" fill="#00ffa3" font-size="7" text-anchor="middle" font-weight="700">App Svc A</text>
+            <text x="387" y="292" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Internal Tool</text>
+            <text x="387" y="303" fill="#5a6a7e" font-size="6.5" text-anchor="middle">1 vCPU</text>
+            <text x="387" y="314" fill="#5a6a7e" font-size="6.5" text-anchor="middle">512 MB · 10 GB</text>
+            <rect x="433" y="268" width="74" height="60" rx="4" fill="#161b24" stroke="#00ffa3" stroke-opacity=".22"/>
+            <text x="470" y="281" fill="#00ffa3" font-size="7" text-anchor="middle" font-weight="700">App Svc B</text>
+            <text x="470" y="292" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Intranet Portal</text>
+            <text x="470" y="303" fill="#5a6a7e" font-size="6.5" text-anchor="middle">1 vCPU</text>
+            <text x="470" y="314" fill="#5a6a7e" font-size="6.5" text-anchor="middle">512 MB · 10 GB</text>
+            <rect x="516" y="268" width="74" height="60" rx="4" fill="#161b24" stroke="#00ffa3" stroke-opacity=".22"/>
+            <text x="553" y="281" fill="#00ffa3" font-size="7" text-anchor="middle" font-weight="700">App Svc C</text>
+            <text x="553" y="292" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Dev / Test</text>
+            <text x="553" y="303" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2 vCPU</text>
+            <text x="553" y="314" fill="#5a6a7e" font-size="6.5" text-anchor="middle">1 GB · 20 GB</text>
+            <rect x="345" y="338" width="250" height="19" rx="4" fill="#161b24" stroke="#1e2a38"/>
+            <text x="470" y="351" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2× Bonded 1 GbE NIC → Core Switch</text>
+            <rect x="345" y="363" width="250" height="19" rx="4" fill="#161b24" stroke="#1e2a38"/>
+            <text x="470" y="376" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2× 1.92 TB NVMe ZFS Mirror + NAS mount</text>
+            <!-- SERVER 3 -->
+            <rect x="635" y="52" width="270" height="444" rx="8" fill="#0f1318" stroke="#1e2a38" stroke-width="1.5"/>
+            <rect x="635" y="52" width="270" height="28" rx="8" fill="#ff6b35" fill-opacity=".1"/>
+            <text x="770" y="71" fill="#ff6b35" font-size="9" font-weight="700" text-anchor="middle" letter-spacing="1.5">SERVER 3 — HA STANDBY</text>
+            <rect x="645" y="88" width="250" height="34" rx="5" fill="#161b24" stroke="#1e2a38"/>
+            <text x="770" y="101" fill="#5a6a7e" font-size="7" text-anchor="middle" letter-spacing="1">HARDWARE</text>
+            <text x="770" y="114" fill="#d4dde8" font-size="7.5" text-anchor="middle">Intel Xeon E-2388G · 64 GB ECC</text>
+            <rect x="645" y="129" width="250" height="19" rx="4" fill="#00c8ff" fill-opacity=".07" stroke="#00c8ff" stroke-opacity=".2"/>
+            <text x="770" y="142" fill="#00c8ff" font-size="7.5" text-anchor="middle" font-weight="700" letter-spacing="1">PROXMOX VE 8 — KVM + LXC</text>
+            <rect x="645" y="155" width="250" height="13" rx="3" fill="#ff6b35" fill-opacity=".04" stroke="#ff6b35" stroke-opacity=".12"/>
+            <text x="770" y="165" fill="#ff6b35" font-size="6.5" text-anchor="middle" letter-spacing="1.5">FAILOVER + RESERVED CAPACITY</text>
+            <rect x="650" y="173" width="113" height="68" rx="5" fill="#161b24" stroke="#ff6b35" stroke-opacity=".32"/>
+            <text x="706" y="186" fill="#ff6b35" font-size="7" text-anchor="middle" font-weight="700">VM — HA REPLICA</text>
+            <text x="706" y="197" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Standby copy</text>
+            <text x="706" y="208" fill="#5a6a7e" font-size="6.5" text-anchor="middle">4 vCPU · 8 GB</text>
+            <text x="706" y="219" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Ready to take over</text>
+            <text x="706" y="231" fill="#ff6b35" font-size="6.5" text-anchor="middle">Auto-restarts in 60s</text>
+            <rect x="772" y="173" width="113" height="68" rx="5" fill="#161b24" stroke="#ff6b35" stroke-opacity=".32"/>
+            <text x="828" y="186" fill="#ff6b35" font-size="7" text-anchor="middle" font-weight="700">VM — DR NODE</text>
+            <text x="828" y="197" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Disaster Recovery</text>
+            <text x="828" y="208" fill="#5a6a7e" font-size="6.5" text-anchor="middle">4 vCPU · 8 GB</text>
+            <text x="828" y="219" fill="#5a6a7e" font-size="6.5" text-anchor="middle">Cold standby</text>
+            <text x="828" y="231" fill="#ff6b35" font-size="6.5" text-anchor="middle">Activates on demand</text>
+            <rect x="645" y="249" width="250" height="13" rx="3" fill="#ff6b35" fill-opacity=".04" stroke="#ff6b35" stroke-opacity=".12"/>
+            <text x="770" y="259" fill="#ff6b35" font-size="6.5" text-anchor="middle" letter-spacing="1.5">INTENTIONALLY KEPT CLEAR</text>
+            <rect x="650" y="268" width="240" height="60" rx="4" fill="#161b24" stroke="#ff6b35" stroke-opacity=".14"/>
+            <text x="770" y="286" fill="#5a6a7e" font-size="7.5" text-anchor="middle">This space is reserved on purpose.</text>
+            <text x="770" y="299" fill="#5a6a7e" font-size="7.5" text-anchor="middle">When Server 1 or 2 is under heavy load,</text>
+            <text x="770" y="312" fill="#ff6b35" font-size="7" text-anchor="middle">services move here automatically.</text>
+            <text x="770" y="323" fill="#5a6a7e" font-size="7" text-anchor="middle">Steady-state: kept below 20% usage.</text>
+            <rect x="645" y="338" width="250" height="19" rx="4" fill="#161b24" stroke="#1e2a38"/>
+            <text x="770" y="351" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2× Bonded 1 GbE NIC → Core Switch</text>
+            <rect x="645" y="363" width="250" height="19" rx="4" fill="#161b24" stroke="#1e2a38"/>
+            <text x="770" y="376" fill="#5a6a7e" font-size="6.5" text-anchor="middle">2× 1.92 TB NVMe ZFS Mirror + NAS mount</text>
+            <!-- Cluster link -->
+            <line x1="35" y1="500" x2="905" y2="500" stroke="#1e2a38" stroke-width="1" stroke-dasharray="3,6"/>
+            <text x="470" y="516" fill="#5a6a7e" font-size="7.5" text-anchor="middle" letter-spacing="1.5">CLUSTER HEARTBEAT LINK — PRIVATE MANAGEMENT NETWORK</text>
+            <!-- NAS -->
+            <rect x="310" y="530" width="320" height="36" rx="6" fill="#161b24" stroke="#00c8ff" stroke-opacity=".22"/>
+            <text x="470" y="544" fill="#00c8ff" font-size="8" text-anchor="middle" font-weight="700" letter-spacing="1">SHARED STORAGE — SYNOLOGY DS1823xs+ NAS</text>
+            <text x="470" y="558" fill="#5a6a7e" font-size="7" text-anchor="middle">Accessible by all 3 servers simultaneously · 10 GbE · Backed up nightly</text>
+            <line x1="170" y1="496" x2="370" y2="530" stroke="#1e2a38" stroke-width="1" stroke-dasharray="4,4"/>
+            <line x1="470" y1="496" x2="470" y2="530" stroke="#1e2a38" stroke-width="1" stroke-dasharray="4,4"/>
+            <line x1="770" y1="496" x2="570" y2="530" stroke="#1e2a38" stroke-width="1" stroke-dasharray="4,4"/>
+          </svg>
+          <div class="diagram-caption">Figure 5.1 — IT COMSEE Corp. Three-Node Proxmox VE Cluster with Hybrid VM and Container Architecture</div>
+        </div>
+      </section>
+
+      <!-- ══ 04 TOOLS ══ -->
+      <section class="section" id="tools">
+        <div class="section-label">
+          <span class="section-num">04</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Tools &amp; Justification</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">The Software Stack — What Each Tool Does</h2>
+
+        <p>Six software tools form the backbone of this virtual infrastructure. Each one was chosen for a specific job. Hover any card for a plain-English explanation of why that tool is in this design and what problem it solves.</p>
+
+        <div class="tool-grid">
+          <div class="tool-card">
+            <div class="tool-name">Proxmox VE 8.x</div>
+            <div class="tool-role">The Building Manager</div>
+            <p>Controls all virtual machines and containers across all three servers from one central web dashboard. The IT team's primary interface for everything.</p>
+            <div class="tip-box">Think of Proxmox as the property management software for an apartment building. It decides who gets which unit, handles move-ins, move-outs, and responds when something in a unit breaks down. (Proxmox Server Solutions, 2024)</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">KVM</div>
+            <div class="tool-role">Virtual Machine Engine</div>
+            <p>The technology inside Proxmox that creates fully isolated virtual machines. Used for login systems, databases, and file servers where privacy is critical.</p>
+            <div class="tip-box">KVM uses the server's CPU hardware directly to create a completely separate computer inside the physical one. It is the same technology used by Google Cloud and AWS for their cloud servers. (Red Hat, 2024)</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">LXC Containers</div>
+            <div class="tool-role">Lightweight Service Environments</div>
+            <p>Like a much lighter, faster version of a virtual machine. Used for monitoring tools, web proxies, and system utilities that don't need full isolation.</p>
+            <div class="tip-box">An LXC container starts in under a second and uses as little as 50 MB of memory. For comparison, a full virtual machine uses 1–2 GB just to boot. For low-risk services, this efficiency adds up quickly. (Linux Containers, 2024)</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">Docker + Compose</div>
+            <div class="tool-role">Application Packager</div>
+            <p>Packages each application service into a self-contained unit. Multiple services can be started, stopped, or updated individually without touching anything else.</p>
+            <div class="tip-box">Docker Compose lets the IT team describe an entire application stack in a single text file and start it with one command. It also makes it easy to roll back to a previous version if an update causes problems. (Docker Inc., 2024)</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">Proxmox Backup Server</div>
+            <div class="tool-role">Automatic Backup System</div>
+            <p>Runs as its own virtual machine on Server 2. Takes automatic snapshots of all other VMs and saves them to the NAS — efficiently, without interrupting running services.</p>
+            <div class="tip-box">PBS only saves the parts of a VM that changed since the last backup — like how cloud storage only uploads new photos. This makes daily backups fast and storage-efficient, and the backups can be locked so even ransomware cannot delete them. (Proxmox Server Solutions, 2024)</div>
+          </div>
+          <div class="tool-card">
+            <div class="tool-name">ZFS Storage</div>
+            <div class="tool-role">Self-Healing File System</div>
+            <p>The file system used on each server's local SSD drives. Automatically detects and corrects silent data corruption — something conventional file systems cannot do.</p>
+            <div class="tip-box">ZFS treats data integrity as a first-class feature. Every block of data is checksummed. If a bit on disk silently flips (called bit rot), ZFS detects the mismatch and restores the correct data from the mirror copy automatically. No human intervention needed. (OpenZFS, 2024)</div>
+          </div>
+        </div>
+
+        <div class="highlight-block accent" style="margin-top:1.8rem">
+          <h3 class="sub-title">What About the Future? — A Note on Kubernetes</h3>
+          <p>Right now, Docker Compose handles the organization's containerized applications. This setup was designed to be directly upgradeable to <strong style="color:var(--accent)">K3s Kubernetes</strong> — a lightweight version of the platform used by the world's largest technology companies to run thousands of services at scale.</p>
+          <p style="margin:0">No hardware changes are needed to make this upgrade. When IT COMSEE Corp. grows beyond 120 employees, the same three servers can run Kubernetes without modification — the organization simply transitions its Docker Compose files to Kubernetes deployment files. This is a deliberate future-proofing decision baked into the current design. (Kubernetes, 2024)</p>
+        </div>
+      </section>
+
+      <!-- ══ 05 SECURITY ══ -->
+      <section class="section" id="security">
+        <div class="section-label">
+          <span class="section-num">05</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Virtualization Security</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Keeping the Virtual Infrastructure Secure</h2>
+
+        <p>Running multiple services on the same physical hardware is powerful — but it also means a security problem in one place can potentially affect others if proper safeguards are not in place. Think of it like a multi-tenant office building: if the lobby is not secured, everyone inside is at risk regardless of how good the individual office locks are.</p>
+        <p>According to NIST's Guide to Security for Full Virtualization Technologies (2011), each layer of a virtualized environment — the physical hardware, the hypervisor, the virtual machines, and the guest operating systems — must be independently hardened. We have addressed each layer below.</p>
+
+        <div class="sec-grid">
+
+          <div class="sec-card level-critical">
+            <div class="sec-card-header"><div class="sec-card-title">Protecting the Control Panel</div><span class="sec-badge critical">Must Do</span></div>
+            <p>The Proxmox web dashboard is the most powerful access point in the system — whoever controls it controls every virtual machine and all data on all three servers. If this dashboard were exposed to the public internet without protection, it would be the equivalent of leaving the master key to every office on the front doorstep.</p>
+            <div class="sec-mitigation"><strong>Protection Plan</strong>The dashboard (port 8006) is restricted so that only IT Support workstations on the internal management network can reach it. Multi-factor authentication is required for all admin logins. Security patches are applied within 48 hours of release using the Proxmox subscription repository. (Proxmox, 2024)</div>
+          </div>
+
+          <div class="sec-card level-critical">
+            <div class="sec-card-header"><div class="sec-card-title">Preventing Services from Talking to Each Other</div><span class="sec-badge critical">Must Do</span></div>
+            <p>By default, virtual machines on the same physical server can communicate with each other across the internal network bridge — as if they were on the same Wi-Fi network. This means without deliberate separation, the company's payroll database could theoretically be reached from a web application running on the same server.</p>
+            <div class="sec-mitigation"><strong>Protection Plan</strong>Each department (Administration, Operations, IT Support) is assigned its own VLAN — a logically separate network. Proxmox's built-in firewall then enforces rules about which services are allowed to talk to which others, preventing unauthorized internal traffic. (CIS Benchmarks, 2023)</div>
+          </div>
+
+          <div class="sec-card level-high">
+            <div class="sec-card-header"><div class="sec-card-title">Container Isolation Risk</div><span class="sec-badge high">Important</span></div>
+            <p>Containers are efficient because they share the underlying operating system with the host server. The downside is that an unpatched vulnerability in the operating system kernel could, in theory, allow a compromised container to access the server itself. This is a known and well-documented risk in the industry.</p>
+            <div class="sec-mitigation"><strong>Protection Plan</strong>All sensitive services — user logins, the company database, file storage — run in full Virtual Machines, never containers. Containers are reserved for monitoring tools and low-risk web services. All containers run in "unprivileged" mode, which limits the damage any compromise could cause. (Linux Containers, 2024)</div>
+          </div>
+
+          <div class="sec-card level-high">
+            <div class="sec-card-header"><div class="sec-card-title">Backups That Can't Be Deleted</div><span class="sec-badge high">Important</span></div>
+            <p>Ransomware attacks increasingly target backup systems — because if backups are destroyed or encrypted, the victim has no choice but to pay. A virtualized environment is particularly valuable to attackers because compromising the backup server gives access to all recovery points for all services simultaneously.</p>
+            <div class="sec-mitigation"><strong>Protection Plan</strong>Proxmox Backup Server uses immutable retention locks — backups cannot be deleted before their retention period expires, even by an administrator. The backup server itself sits on a separate network credential set that is unreachable from the VM network. Recovery drills are scheduled quarterly to confirm backups actually work. (Proxmox Server Solutions, 2024)</div>
+          </div>
+
+          <div class="sec-card level-medium">
+            <div class="sec-card-header"><div class="sec-card-title">No Shared Admin Passwords</div><span class="sec-badge medium">Standard Practice</span></div>
+            <p>Many organizations run into a common problem: everyone in IT shares the same "root" or "admin" password. When something goes wrong, there is no way to know who made which change. And when a staff member leaves, the password has to be changed and communicated to everyone — a process that frequently gets skipped.</p>
+            <div class="sec-mitigation"><strong>Protection Plan</strong>Every IT Support staff member gets their own named account in Proxmox with only the permissions they actually need. Accounts are linked to the Active Directory login system — so when a staff member leaves and their AD account is disabled, access to Proxmox is automatically revoked as well. (CIS Benchmarks, 2023)</div>
+          </div>
+
+          <div class="sec-card level-medium">
+            <div class="sec-card-header"><div class="sec-card-title">Keeping Admin Access Off the Main Network</div><span class="sec-badge medium">Standard Practice</span></div>
+            <p>If the IT management interface — the Proxmox dashboard and server SSH access — shares the same network as regular employee computers, then any employee computer that gets infected with malware is potentially one step away from the most sensitive administrative controls in the organization.</p>
+            <div class="sec-mitigation"><strong>Protection Plan</strong>All server management (Proxmox dashboard, SSH) is placed on a dedicated management VLAN that is only reachable from physically designated IT Support workstations. SSH is configured to require cryptographic key authentication — password-based login is disabled entirely.</div>
+          </div>
+
+          <div class="sec-card level-medium">
+            <div class="sec-card-header"><div class="sec-card-title">Preventing One Service from Hogging Resources</div><span class="sec-badge medium">Standard Practice</span></div>
+            <p>In a shared environment, one runaway service — a database query that goes wrong, a backup job that starts at the wrong time — can consume all available CPU and memory on a server, slowing down every other service for every employee at the same time. This is sometimes called a "noisy neighbor" problem.</p>
+            <div class="sec-mitigation"><strong>Protection Plan</strong>Every virtual machine and container is given a hard resource cap in Proxmox — a maximum amount of CPU and memory it is allowed to use. The monitoring dashboard (Grafana) sends an alert if any service approaches its limit for more than five minutes, giving IT time to investigate before it becomes a problem.</div>
+          </div>
+
+          <div class="sec-card level-good">
+            <div class="sec-card-header"><div class="sec-card-title">Full Audit Trail of Every Action</div><span class="sec-badge good">Built In</span></div>
+            <p>Proxmox automatically logs every administrative action: who logged in, which virtual machine was created or deleted, which settings were changed, and when. This is the foundation of accountability — if something goes wrong, IT can trace exactly what happened and when.</p>
+            <div class="sec-mitigation"><strong>Enhancement Plan</strong>These logs are forwarded to a centralized log server running in a dedicated container, where they are retained for 90 days and monitored for suspicious patterns — for example, multiple failed login attempts or an admin account active at 3 AM on a Sunday. (NIST SP 800-125, 2011)</div>
+          </div>
+
+        </div>
+
+        <div class="highlight-block" style="margin-top:1.8rem">
+          <h3 class="sub-title">Security Implementation Checklist</h3>
+          <p style="font-size:.83rem;margin-bottom:.8rem">The following items must be completed during initial deployment and verified at each quarterly review:</p>
+          <div class="checklist">
+            <div class="checklist-item">Proxmox dashboard restricted to management VLAN only</div>
+            <div class="checklist-item">Multi-factor authentication on all admin accounts</div>
+            <div class="checklist-item">VLAN separation between departments enforced</div>
+            <div class="checklist-item">All containers running in unprivileged mode</div>
+            <div class="checklist-item">Proxmox subscription active for priority patches</div>
+            <div class="checklist-item">Backup immutable retention locks configured</div>
+            <div class="checklist-item">Named individual accounts — no shared credentials</div>
+            <div class="checklist-item">Centralized log server active with 90-day retention</div>
+            <div class="checklist-item">SSH root login disabled; key-only authentication</div>
+            <div class="checklist-item">CPU and memory hard limits set on every service</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 06 ANALYSIS ══ -->
+      <section class="section" id="analysis">
+        <div class="section-label">
+          <span class="section-num">06</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Advantages &amp; Limitations</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">What This System Does Well — and What to Watch</h2>
+
+        <p>No technology is perfect. Below we walk through the biggest benefits of this design alongside the honest limitations — and what the IT team does to manage each one. Click any item to read the full explanation.</p>
+
+        <div class="accordion">
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--green)">✔</span> Getting More From Three Servers Than You Would From Ten</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>The Benefit:</strong> Without virtualization, each physical server does one job — a file server is always a file server, even at 2 AM when nobody is using it. With virtualization, all three servers share their resources as a single pool of 192 GB of memory and 48 processor threads. When the database is busy during the day, it automatically gets more resources. When backup jobs run at night, those resources shift to the backup service.<br/><br/>
+              <strong>The Limitation:</strong> The shared NAS storage unit can only transfer data at 10 Gigabits per second total. If all three servers simultaneously try to do large data transfers — for example, during a full backup combined with large file uploads — they compete for the same bandwidth pipe.<br/>
+              <strong style="color:var(--green)">How We Handle It:</strong> Hot data — the stuff being actively used — stays on each server's local SSD drives, which are blazing fast (3,500 MB/s). The NAS is used for shared files and backups, not for live database operations. This keeps the two types of traffic separate.
+            </div></div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--green)">✔</span> If a Server Goes Down, Nobody Notices</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>The Benefit:</strong> Proxmox's High Availability Manager monitors every virtual machine every few seconds. If a physical server fails — power outage, hardware fault, anything — every VM that was running on it is automatically restarted on one of the other two surviving servers within 30 to 60 seconds. Employees may see a brief slowdown at most; no data is lost and no manual IT intervention is required.<br/><br/>
+              <strong>The Limitation:</strong> This automatic recovery requires the three servers to always be able to communicate with each other. If the private management network connecting them is disrupted, the cluster can enter a "split-brain" state where it cannot tell whether a server has failed or is simply unreachable — and it may become cautious and stop making automatic decisions.<br/>
+              <strong style="color:var(--green)">How We Handle It:</strong> The cluster heartbeat runs on a physically separate network cable and switch port from regular traffic. A "quorum device" — a small persistent tie-breaker — prevents split-brain scenarios from causing unnecessary disruption.
+            </div></div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--green)">✔</span> Maintenance Without Any Downtime</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>The Benefit:</strong> When a physical server needs a firmware update, a hardware replacement, or just a restart, the IT team does not have to schedule maintenance windows or warn employees. They simply move all running virtual machines to the other two servers — while they are still running — then safely restart the physical server. When it comes back up, VMs can be moved back. Employees experience nothing throughout this entire process.<br/><br/>
+              <strong>What Makes This Possible:</strong> All three servers are connected to the same NAS storage unit. Because VMs store their disk files on this shared storage rather than on the local server, moving a VM between servers does not require copying any data — it is nearly instant.
+            </div></div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--orange)">!</span> This System Requires Trained IT Staff</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>The Limitation:</strong> Proxmox, KVM, LXC, and Docker all have their own configuration nuances. An IT staff member without prior Linux server experience will need time to become productive with this stack. Incorrect VLAN or network bridge configuration in Proxmox can cause VMs to be unable to communicate — a type of failure that can be hard to diagnose if you do not know where to look.<br/><br/>
+              <strong style="color:var(--green)">How We Handle It:</strong> One designated IT Support team member becomes the primary Proxmox administrator and undergoes structured training. Proxmox's web interface significantly reduces the complexity compared to managing raw KVM from the command line. All VM and container configurations are documented in a version-controlled repository so any team member can understand and reproduce the setup.
+            </div></div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--orange)">!</span> Containers Are Not as Isolated as Virtual Machines</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>The Limitation:</strong> This is a known trade-off in the industry, not a flaw unique to this design. Containers share the server's operating system kernel — the deepest layer of the software. A serious, unpatched vulnerability in the kernel could theoretically allow a compromised container to access the host server or other containers running alongside it. This is why the security community treats container isolation as "good but not perfect."<br/><br/>
+              <strong style="color:var(--green)">How We Handle It:</strong> The most sensitive services — user authentication, the company database, backups — never run in containers. They are always inside full Virtual Machines with hardware-enforced isolation. Containers are strictly used for monitoring tools and low-risk web services. The kernel is kept patched on a regular maintenance schedule, minimizing the window of exposure. (NIST, 2011)
+            </div></div>
+          </div>
+
+        </div>
+
+        <h3 class="sub-title" style="margin:2rem 0 0.9rem">How Busy Are the Servers on a Typical Workday?</h3>
+        <p style="font-size:.87rem;color:var(--muted);margin-bottom:1rem">These are estimated utilization levels with 80–120 active users. The numbers leave meaningful headroom for unexpected spikes and for Server 3's reserved emergency capacity.</p>
+        <div class="highlight-block">
+          <div class="perf-item">
+            <div class="perf-label"><span>Processor Usage (average across all services)</span><span>~45%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="45"></div></div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label"><span>Memory Usage (out of 64 GB per server)</span><span>~65%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="65"></div></div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label"><span>Local SSD Drive Activity</span><span>~30%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="30"></div></div>
+          </div>
+          <div class="perf-item" style="margin-bottom:0">
+            <div class="perf-label"><span>Network Bandwidth Used (1 Gbps uplink per server)</span><span>~40%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="40"></div></div>
+          </div>
+        </div>
+        <p style="font-size:.74rem;color:var(--muted);margin-top:.65rem">* Based on 80–120 concurrent users with typical office workloads (file access, authentication, web services). Server 3 is held below 20% to preserve its role as the emergency fallback.</p>
+      </section>
+
+      <!-- ══ 07 BUDGET ══ -->
+      <section class="section" id="budget">
+        <div class="section-label">
+          <span class="section-num">07</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Budget Breakdown</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Where the ₱1,500,000 Goes</h2>
+
+        <p>The virtualization budget covers the three physical servers, the shared storage unit, the rack that houses them, cabling, and optional software support. Here is how that spending compares to the overall project.</p>
+
+        <div class="budget-wrap">
+          <div class="donut-area">
+            <svg class="donut" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="46" fill="none" stroke="#1e2a38" stroke-width="13"/>
+              <circle id="d-virt"  cx="60" cy="60" r="46" fill="none" stroke="#00c8ff" stroke-width="13" stroke-dasharray="289.03" stroke-dashoffset="289.03" stroke-linecap="butt" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1.4s ease"/>
+              <circle id="d-net"   cx="60" cy="60" r="46" fill="none" stroke="#00ffa3" stroke-width="13" stroke-dasharray="289.03" stroke-dashoffset="289.03" stroke-linecap="butt" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1.4s ease .1s"/>
+              <circle id="d-hw"    cx="60" cy="60" r="46" fill="none" stroke="#ff6b35" stroke-width="13" stroke-dasharray="289.03" stroke-dashoffset="289.03" stroke-linecap="butt" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1.4s ease .2s"/>
+              <circle id="d-other" cx="60" cy="60" r="46" fill="none" stroke="#5a6a7e" stroke-width="13" stroke-dasharray="289.03" stroke-dashoffset="289.03" stroke-linecap="butt" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1.4s ease .3s"/>
+              <text x="60" y="55" text-anchor="middle" fill="#fff" font-size="10.5" font-weight="700" font-family="'JetBrains Mono',monospace">₱10M</text>
+              <text x="60" y="67" text-anchor="middle" fill="#5a6a7e" font-size="6.5" font-family="'JetBrains Mono',monospace">Total Budget</text>
+            </svg>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.64rem;color:var(--muted)">How the ₱10M is distributed</div>
+          </div>
+          <div class="budget-legend">
+            <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div><div class="leg-name">Virtualization (this section)</div><div class="leg-val">₱1.5M — 15%</div></div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div><div class="leg-name">Networking &amp; Security</div><div class="leg-val">₱2.0M — 20%</div></div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--orange)"></div><div class="leg-name">Employee Computers &amp; Hardware</div><div class="leg-val">₱3.5M — 35%</div></div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--muted)"></div><div class="leg-name">OS Licenses, Setup &amp; Contingency</div><div class="leg-val">₱3.0M — 30%</div></div>
+          </div>
+        </div>
+
+        <table class="budget-table">
+          <thead>
+            <tr><th>What We're Buying</th><th>What It Does</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--heading)">Dell PowerEdge R750xs</strong><br/><span style="font-size:.7rem;color:var(--muted)">Physical server — runs all virtual machines</span></td>
+              <td style="font-size:.77rem">The physical hardware that all virtual machines live on. Comes with 8 processor cores, 64 GB memory, and two fast SSDs per unit. (Dell Technologies, 2024)</td>
+              <td>3</td><td>₱280,000–₱350,000</td><td>₱840,000–₱1,050,000</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Synology DS1823xs+</strong><br/><span style="font-size:.7rem;color:var(--muted)">Shared file storage unit</span></td>
+              <td style="font-size:.77rem">The central storage unit that all three servers connect to. Holds shared company files, VM disk images, and backups — all accessible simultaneously from any server. (Synology Inc., 2024)</td>
+              <td>1</td><td>₱190,000–₱230,000</td><td>₱190,000–₱230,000</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Server Rack, UPS &amp; PDU</strong><br/><span style="font-size:.7rem;color:var(--muted)">Physical housing and power protection</span></td>
+              <td style="font-size:.77rem">The cabinet that holds all servers, a battery backup unit (UPS) so a power outage does not immediately crash everything, and a power distribution unit for clean, managed power delivery.</td>
+              <td>1 set</td><td>₱90,000–₱130,000</td><td>₱90,000–₱130,000</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Proxmox Subscription</strong><br/><span style="font-size:.7rem;color:var(--muted)">Annual support subscription (recommended)</span></td>
+              <td style="font-size:.77rem">Optional but strongly recommended. Unlocks priority security patches and gives the IT team access to Proxmox's enterprise support channels when something urgent needs resolving. (Proxmox Server Solutions, 2024)</td>
+              <td>3 nodes</td><td>₱6,000–₱12,000/yr</td><td>₱18,000–₱36,000/yr</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">10 GbE Cables &amp; Modules</strong><br/><span style="font-size:.7rem;color:var(--muted)">High-speed server interconnects</span></td>
+              <td style="font-size:.77rem">The cables and network adapters connecting servers to the NAS and core switch at 10 Gigabits per second — ten times faster than standard office network cables, necessary for fast storage access.</td>
+              <td>1 set</td><td>₱30,000–₱50,000</td><td>₱30,000–₱50,000</td>
+            </tr>
+            <tr class="total-row"><td colspan="4" style="text-align:right">Estimated Total</td><td class="price-cell">₱1,168,000–₱1,496,000</td></tr>
+            <tr class="total-row"><td colspan="4" style="text-align:right;color:var(--muted)">Budget Allocated</td><td class="price-green">₱1,500,000</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:.74rem;color:var(--muted);margin-top:.65rem">The remaining ₱4,000–₱332,000 within the allocation covers freight, on-site installation, initial configuration services, and a small buffer for price fluctuations. At 15% of the ₱10M total, this budget delivers the computing backbone for the entire organization.</p>
+      </section>
+
+      <!-- ══ 08 SUMMARY ══ -->
+      <section class="section" id="summary">
+        <div class="section-label">
+          <span class="section-num">08</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Summary</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">The Short Version</h2>
+        <p>If you read only this section, here is what IT COMSEE Corp. is getting and why each decision was made.</p>
+        <div class="rec-grid">
+          <div class="rec-card"><div class="rec-label">What We're Running</div><div class="rec-value">Hybrid — VMs &amp; Containers</div><div class="rec-note">Sensitive services get full privacy; lighter services share resources efficiently</div></div>
+          <div class="rec-card"><div class="rec-label">The Platform</div><div class="rec-value">Proxmox VE 8 (Free + Subscription)</div><div class="rec-note">Enterprise-grade features without the six-figure VMware licensing bill</div></div>
+          <div class="rec-card"><div class="rec-label">Container Technology</div><div class="rec-value">LXC + Docker Compose</div><div class="rec-note">LXC for system-level services; Docker for applications and tools</div></div>
+          <div class="rec-card"><div class="rec-label">Server Count</div><div class="rec-value">3-Node Cluster</div><div class="rec-note">Any single server failure is invisible to users — the other two keep everything running</div></div>
+          <div class="rec-card"><div class="rec-label">Failure Recovery</div><div class="rec-value">Automatic within 60 seconds</div><div class="rec-note">Proxmox HA Manager detects failure and restarts services without human intervention</div></div>
+          <div class="rec-card"><div class="rec-label">Virtualization Budget</div><div class="rec-value" style="color:var(--accent)">₱1,500,000 (15% of ₱10M)</div><div class="rec-note">Covers three servers, shared NAS, rack, cabling, and optional support subscription</div></div>
+          <div class="rec-card"><div class="rec-label">Growth Path</div><div class="rec-value">Kubernetes-Ready</div><div class="rec-note">When the company scales past 120 users, no new hardware is needed — just an upgrade in how containers are orchestrated</div></div>
+          <div class="rec-card"><div class="rec-label">Storage Design</div><div class="rec-value">ZFS + Shared NAS</div><div class="rec-note">Fast local SSDs for live workloads; shared NAS for files, backups, and server mobility</div></div>
+        </div>
+      </section>
+
+      <!-- ══ REFERENCES ══ -->
+      <section class="section" id="references">
+        <div class="section-label">
+          <span class="section-num">REF</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">References</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">References</h2>
+        <ol class="refs">
+          <li>Proxmox Server Solutions GmbH. (2024). <em>Proxmox VE Administration Guide 8.x.</em> https://pve.proxmox.com/pve-docs/</li>
+          <li>Docker Inc. (2024). <em>Docker Documentation — Get Started.</em> https://docs.docker.com/get-started/</li>
+          <li>Linux Containers. (2024). <em>LXC Introduction and Documentation.</em> https://linuxcontainers.org/lxc/introduction/</li>
+          <li>VMware, Inc. (2023). <em>vSphere 8 Documentation: Understanding Hypervisors.</em> https://docs.vmware.com/en/VMware-vSphere/</li>
+          <li>Red Hat, Inc. (2024). <em>What is KVM?</em> https://www.redhat.com/en/topics/virtualization/what-is-KVM</li>
+          <li>Tanenbaum, A. S., &amp; Bos, H. (2015). <em>Modern Operating Systems (4th ed.).</em> Pearson Education. Ch. 7: Virtualization and the Cloud.</li>
+          <li>Kubernetes. (2024). <em>K3s – Lightweight Kubernetes.</em> https://k3s.io</li>
+          <li>Synology Inc. (2024). <em>DiskStation DS1823xs+ Datasheet.</em> https://www.synology.com</li>
+          <li>Dell Technologies. (2024). <em>PowerEdge R750xs Spec Sheet.</em> https://www.dell.com/en-us/shop/servers-storage-and-networking/</li>
+          <li>National Institute of Standards and Technology (NIST). (2011). <em>NIST SP 800-125: Guide to Security for Full Virtualization Technologies.</em> https://csrc.nist.gov/publications/detail/sp/800-125/final</li>
+          <li>Proxmox Server Solutions GmbH. (2024). <em>Proxmox VE Firewall Documentation.</em> https://pve.proxmox.com/wiki/Firewall</li>
+          <li>Center for Internet Security (CIS). (2023). <em>CIS Benchmarks for Linux and Virtualization Hardening.</em> https://www.cisecurity.org/cis-benchmarks</li>
+          <li>OpenZFS. (2024). <em>ZFS on Linux — Administration and Concepts.</em> https://openzfs.github.io/openzfs-docs/</li>
+        </ol>
+      </section>
+
+    </main>
+
+    <footer>
+      <span>IT COMSEE Corp. // Infrastructure Proposal · Term 2 AY 2025–2026</span>
+      <span>Part 5: Virtualization &amp; Containerization &nbsp;|&nbsp; ITCMSY1</span>
+    </footer>
+  </div>
+</div>
+
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+function switchTab(btn, id) {
+  const wrap = btn.closest('.section');
+  wrap.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  wrap.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function toggleAcc(header) {
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('.acc-icon');
+  const open = body.classList.contains('open');
+  document.querySelectorAll('.acc-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.acc-icon').forEach(i => { i.style.transform = ''; i.style.color = ''; });
+  if (!open) { body.classList.add('open'); icon.style.transform = 'rotate(180deg)'; icon.style.color = 'var(--accent)'; }
+}
+
+const sbls = document.querySelectorAll('.sbl');
+const sections = document.querySelectorAll('section.section');
+const prog = document.getElementById('progress');
+const btt  = document.getElementById('btt');
+
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  prog.style.width = Math.min(scrollTop / docH * 100, 100) + '%';
+  btt.classList.toggle('show', scrollTop > 500);
+  let cur = '';
+  sections.forEach(s => { if (s.getBoundingClientRect().top < 130) cur = s.id; });
+  sbls.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+}, { passive: true });
+
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.t);
+  const isFloat = el.dataset.float === '1';
+  const dur = 1100; const start = performance.now();
+  (function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = isFloat ? (target * e).toFixed(1) : Math.round(target * e);
+    if (p < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+let donutDone = false;
+function buildDonut() {
+  if (donutDone) return; donutDone = true;
+  const circ = 2 * Math.PI * 46;
+  const pcts = [0.15, 0.20, 0.35, 0.30];
+  const ids  = ['d-virt','d-net','d-hw','d-other'];
+  let offset = 0;
+  setTimeout(() => {
+    ids.forEach((id, i) => {
+      const el = document.getElementById(id);
+      const arc = circ * pcts[i];
+      el.setAttribute('stroke-dashoffset', circ - arc);
+      el.setAttribute('transform', `rotate(${-90 + offset / circ * 360} 60 60)`);
+      offset += arc;
+    });
+  }, 300);
+}
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('.bar-fill[data-w]').forEach(b => { b.style.width = b.dataset.w + '%'; });
+    entry.target.querySelectorAll('.ctr[data-t]').forEach(c => { if (c._done) return; c._done = true; animateCounter(c); });
+    if (entry.target.id === 'budget') buildDonut();
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.section, .hero').forEach(s => io.observe(s));
+</script>
+</body>
+</html>
