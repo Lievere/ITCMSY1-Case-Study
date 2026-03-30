@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Network & I/O Technology IT COMSEE Corp.</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Oswald:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="ITCMSYstyle.css"/>
+  <style>
+
+    /* OSI Stack */
+    .osi-stack { display: flex; flex-direction: column; gap: 3px; margin-top: 1.2rem; }
+    .osi-row {
+      display: grid; grid-template-columns: 2.2rem 9rem 1fr;
+      gap: 1rem; align-items: center;
+      background: var(--bg2);
+      border: 1px solid rgba(0,255,255,0.08);
+      border-left: 3px solid var(--layer-color, rgba(0,255,255,0.2));
+      padding: 0.6rem 1rem; cursor: default;
+      transition: background .15s, border-color .15s;
+    }
+    .osi-row:hover { background: rgba(0,255,255,0.03); border-color: var(--layer-color, var(--cyan)); }
+    .osi-row.active-layer { border-color: var(--layer-color); background: rgba(0,255,255,0.04); }
+    .osi-num {
+      font-family: 'Oswald', sans-serif; font-size: 1rem; font-weight: 700;
+      color: var(--layer-color, var(--cyan)); text-align: center;
+      text-shadow: 0 0 8px currentColor;
+    }
+    .osi-name {
+      font-family: 'Oswald', sans-serif; font-size: 0.88rem; font-weight: 700;
+      color: var(--heading); text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .osi-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.45; }
+    .osi-row[data-layer="7"] { --layer-color: #FF00FF; }
+    .osi-row[data-layer="6"] { --layer-color: #CC00FF; }
+    .osi-row[data-layer="5"] { --layer-color: #0080FF; }
+    .osi-row[data-layer="4"] { --layer-color: #00FFFF; }
+    .osi-row[data-layer="3"] { --layer-color: #00FF41; }
+    .osi-row[data-layer="2"] { --layer-color: #FFFF00; }
+    .osi-row[data-layer="1"] { --layer-color: #FF8000; }
+
+    /* IP Address table */
+    .ip-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.9rem; }
+    .ip-table thead tr { background: var(--bg3); border-bottom: 1px solid rgba(0,255,255,0.25); }
+    .ip-table th {
+      padding: 0.6rem 0.9rem; text-align: left;
+      font-family: 'Oswald', sans-serif; font-size: 0.7rem; font-weight: 700;
+      color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0,255,255,0.3);
+    }
+    .ip-table td { padding: 0.55rem 0.9rem; border-bottom: 1px solid rgba(0,255,255,0.06); color: var(--text); vertical-align: middle; }
+    .ip-table tbody tr:hover td { background: rgba(0,255,255,0.03); }
+    .vlan-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700;
+      padding: 0.1rem 0.45rem; border-radius: 0; text-transform: uppercase;
+      border: 1px solid currentColor;
+    }
+
+    /* Hardware spec rows */
+    .hw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 1rem; margin-top: 1.2rem; }
+    .hw-card {
+      background: var(--bg2); border: 1px solid rgba(0,255,255,0.1); border-radius: 0;
+      padding: 1.3rem; position: relative; overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .hw-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(to right, var(--hw-color, var(--cyan)), transparent);
+    }
+    .hw-card:hover { border-color: var(--hw-color, rgba(0,255,255,0.3)); box-shadow: 0 0 16px rgba(0,255,255,0.06); }
+    .hw-icon { font-size: 1.6rem; margin-bottom: 0.6rem; filter: drop-shadow(0 0 6px var(--hw-color, var(--cyan))); }
+    .hw-name { font-family: 'Oswald', sans-serif; font-size: 0.92rem; font-weight: 700; color: var(--heading); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.2rem; }
+    .hw-model { font-size: 0.68rem; color: var(--hw-color, var(--cyan)); margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; }
+    .hw-spec { font-size: 0.76rem; color: var(--muted); line-height: 1.5; }
+    .hw-cost { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--lime); margin-top: 0.6rem; text-shadow: 0 0 5px rgba(0,255,65,0.3); }
+
+    /* I/O device grid */
+    .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1.2rem; }
+    .io-col { background: var(--bg3); border: 1px solid rgba(0,255,255,0.1); padding: 1.3rem; }
+    .io-col-title {
+      font-family: 'Oswald', sans-serif; font-size: 0.82rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.9rem;
+    }
+    .io-item {
+      display: flex; gap: 0.6rem; font-size: 0.79rem; padding: 0.42rem 0;
+      border-bottom: 1px solid rgba(0,255,255,0.05); align-items: flex-start;
+    }
+    .io-item:last-child { border-bottom: none; }
+    .io-item-icon { flex-shrink: 0; font-size: 0.9rem; }
+    .io-item-name { color: var(--text); font-weight: 600; }
+    .io-item-desc { color: var(--muted); font-size: 0.72rem; }
+
+    /* Media type chips */
+    .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 1rem; margin-top: 1rem; }
+    .media-card {
+      background: var(--bg2); border: 1px solid rgba(0,255,255,0.1);
+      padding: 1.1rem; text-align: center;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+      transition: border-color .2s, transform .18s;
+    }
+    .media-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+    .media-icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .media-name { font-family: 'Oswald', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--heading); text-transform: uppercase; }
+    .media-spec { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--cyan); margin: 0.2rem 0; text-shadow: 0 0 5px rgba(0,255,255,0.3); }
+    .media-use { font-size: 0.72rem; color: var(--muted); }
+
+    @media(max-width:700px){
+      .osi-row { grid-template-columns: 1.8rem 1fr; }
+      .osi-desc { display: none; }
+      .io-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="topnav">
+  <div class="nav-logo">IT COMSEE Corp.</div>
+  <div class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="storage.html">Storage</a>
+    <a href="network.html" class="active">Network</a>
+    <a href="virtualization.html">Virtualization</a>
+    <a href="performance.html">Performance</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-label">On This Page</div>
+    <a href="#topology"   class="sbl active"><span class="dot"></span>Network Topology</a>
+    <a href="#hardware"   class="sbl"><span class="dot"></span>Hardware Components</a>
+    <a href="#diagram"    class="sbl"><span class="dot"></span>Network Diagram</a>
+    <a href="#media"      class="sbl"><span class="dot"></span>Transmission Media</a>
+    <a href="#osi"        class="sbl"><span class="dot"></span>OSI Model</a>
+    <a href="#tcpip"      class="sbl"><span class="dot"></span>TCP/IP & Addressing</a>
+    <a href="#io-devices" class="sbl"><span class="dot"></span>I/O Devices</a>
+    <a href="#io-control" class="sbl"><span class="dot"></span>I/O Control</a>
+    <a href="#references" class="sbl"><span class="dot"></span>References</a>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+      <div class="progress-label">Reading progress</div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main-content">
+
+    <header class="hero">
+      <div class="page-tag">Part 4: Network &amp; I/O Technology Design</div>
+      <h1 class="hero-title" data-text="Network Infrastructure Design">Network<br/><span>Infrastructure Design</span></h1>
+      <p class="hero-sub">
+        A three-floor hierarchical network connecting 80–120 employees across three departments,
+        with VLAN-segmented traffic, 10 GbE server backbone, and a layered security perimeter
+        designed to support every service the virtualization stack delivers.
+      </p>
+      <div class="author-badge">by <strong>[ Group 7 ]</strong> &nbsp;</div>
+      <div class="hero-stats">
+        <div class="stat-chip">
+          <div class="sc-val">3</div>
+          <div class="sc-lbl">Building Floors</div>
+          <div class="sc-tip">One access switch per floor connects 30–40 employee workstations each to the core switch in the server room.</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val">4</div>
+          <div class="sc-lbl">VLANs Deployed</div>
+          <div class="sc-tip">Administration (10), Operations (20), IT Support (30), and Management (99) each an isolated logical network with its own IP subnet.</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val">10 GbE</div>
+          <div class="sc-lbl">Server Backbone</div>
+          <div class="sc-tip">All server-to-switch and NAS-to-switch links run at 10 Gigabits per second  10× faster than employee workstation links to avoid the server rack becoming a bottleneck.</div>
+        </div>
+        <div class="stat-chip">
+          <div class="sc-val"><span class="ctr" data-t="2">0</span>M</div>
+          <div class="sc-lbl">Budget (PhP)</div>
+          <div class="sc-tip">₱2,000,000 or  20% of the total ₱10M project budget for: networking equipment, cabling, wireless, and the internet gateway/firewall.</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ══ 01 TOPOLOGY ══ -->
+      <section class="section" id="topology">
+        <div class="section-label">
+          <span class="section-num">01</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Network Topology</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Hierarchical Star Topology</h2>
+
+        <p>A network topology is the logical map of how devices connect and communicate. For a multi-floor office building housing three departments with different access requirements, the right topology is not flat it is layered. IT COMSEE Corp.'s network follows a <strong style="color:var(--cyan)">Three-Tier Hierarchical Star</strong> model, the same approach used in enterprise campus networks worldwide.</p>
+
+        <div class="decision-banner">
+          <div class="decision-icon">🌐</div>
+          <div class="decision-text">
+            <h3>Why Hierarchical Star?</h3>
+            <p>
+              The hierarchical model addresses these limitations by segmenting the network into functional layers,
+              enabling improved traffic control, fault isolation, and scalability.
+              Each floor operates as an independent access segment, while centralized routing ensures efficient communication across the organization (Tanenbaum, 2010).
+            </p>
+        <div class="hw-grid">
+          <div class="hw-card" style="--hw-color:var(--cyan)">
+            <div class="hw-icon">🔵</div>
+            <div class="hw-name">Core Layer</div>
+            <div class="hw-model">Server Room</div>
+            <div class="hw-spec">The single Layer 3 switch in the server room. All access switches, servers, the NAS, and the firewall connect here. Handles inter-VLAN routing and 10 GbE uplinks to the server rack. This is the highest-bandwidth point in the network.</div>
+          </div>
+          <div class="hw-card" style="--hw-color:var(--lime)">
+            <div class="hw-icon">🟢</div>
+            <div class="hw-name">Access Layer</div>
+            <div class="hw-model">One Switch Per Floor (×3)</div>
+            <div class="hw-spec">48-port switches on each floor connect employee workstations at 1 GbE. They tag traffic with the correct VLAN based on which port a device is plugged into, then forward everything upward to the core. Employees on the same floor but different departments are still logically separated.</div>
+          </div>
+          <div class="hw-card" style="--hw-color:var(--magenta)">
+            <div class="hw-icon">🔒</div>
+            <div class="hw-name">Security Perimeter</div>
+            <div class="hw-model">Firewall</div>
+            <div class="hw-spec">The FortiGate firewall sits between the internet (ISP uplink) and the core switch. It inspects all inbound and outbound traffic, blocks unauthorized connections, provides VPN access for remote workers, and acts as the organization's primary defense against external threats.</div>
+          </div>
+          <div class="hw-card" style="--hw-color:#FF8000">
+            <div class="hw-icon">📡</div>
+            <div class="hw-name">Wireless Layer</div>
+            <div class="hw-model">One AP Per Floor (Minimum)</div>
+            <div class="hw-spec">802.11ac Wave 2 access points on each floor provide wireless access. Each SSID is mapped to a specific VLAN  a device connecting to the "ITCOMSEE-Admin" Wi-Fi network is automatically placed in VLAN 10, with exactly the same access restrictions as a wired Administration workstation.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 02 HARDWARE ══ -->
+      <section class="section" id="hardware">
+        <div class="section-label">
+          <span class="section-num">02</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Hardware Components</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Selected Network Hardware</h2>
+
+        <p>Every piece of hardware below was selected to meet the specific requirements of IT COMSEE Corp.'s environment: 80–120 users across three floors, three logically separated departments, and a server rack running a three-node virtualization cluster. Click any row in the table below for more detail.</p>
+
+        <table class="hyp-table">
+          <thead>
+            <tr><th>Component</th><th>Model</th><th>Qty</th><th>Key Specs</th><th>Role</th><th>Est. Cost (PhP)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--heading)">Core Switch</strong><br/><span style="font-size:.7rem;color:var(--muted)">Layer 3 · Server Room</span></td>
+              <td>Cisco Catalyst 2960X-48TS-L</td>
+              <td>1</td>
+              <td>48× 1 GbE + 4× SFP uplinks, Layer 3 routing</td>
+              <td>Central routing, VLAN trunking, server 10 GbE uplinks</td>
+              <td style="color:var(--cyan);font-family:'JetBrains Mono',monospace">₱80,000–₱120,000</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Access Switch</strong><br/><span style="font-size:.7rem;color:var(--muted)">Layer 2 · Per Floor</span></td>
+              <td>Cisco SG350-48 (or equivalent)</td>
+              <td>3</td>
+              <td>48× 1 GbE, VLAN 802.1Q, QoS, PoE+ optional</td>
+              <td>Connects 30–40 employee workstations per floor with VLAN tagging</td>
+              <td style="color:var(--cyan);font-family:'JetBrains Mono',monospace">₱25,000–₱40,000 each</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Firewall / Router</strong><br/><span style="font-size:.7rem;color:var(--muted)">Internet Edge</span></td>
+              <td>Fortinet FortiGate 60F</td>
+              <td>1</td>
+              <td>10 Gbps throughput, IPS/IDS, SSL VPN, web filtering</td>
+              <td>Internet gateway, stateful inspection, remote access VPN for staff</td>
+              <td style="color:var(--cyan);font-family:'JetBrains Mono',monospace">₱45,000–₱70,000</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Wireless AP</strong><br/><span style="font-size:.7rem;color:var(--muted)">Per Floor (minimum)</span></td>
+              <td>Ubiquiti UniFi AP AC Pro</td>
+              <td>3–6</td>
+              <td>802.11ac Wave 2, 2.4/5 GHz dual-band, PoE powered</td>
+              <td>Wireless access mapped to VLANs per SSID; managed centrally via UniFi controller</td>
+              <td style="color:var(--cyan);font-family:'JetBrains Mono',monospace">₱8,000–₱12,000 each</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Network UPS</strong><br/><span style="font-size:.7rem;color:var(--muted)">Power Protection</span></td>
+              <td>APC Smart-UPS 1500VA</td>
+              <td>1</td>
+              <td>1500VA / 1000W, SNMP card, auto-shutdown</td>
+              <td>Battery backup for core switch, firewall, and patch panels  prevents power cut from causing network outage</td>
+              <td style="color:var(--cyan);font-family:'JetBrains Mono',monospace">₱25,000–₱40,000</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--heading)">Patch Panels &amp; Cabling</strong><br/><span style="font-size:.7rem;color:var(--muted)">Structured Wiring</span></td>
+              <td>Cat6A + OM4 Fiber / SFP+ DAC</td>
+              <td>Full building</td>
+              <td>Cat6A up to 10 GbE at 100m; OM4 for 10 GbE server uplinks</td>
+              <td>Structured horizontal cabling to all workstation ports; fiber/DAC for server room 10 GbE links</td>
+              <td style="color:var(--cyan);font-family:'JetBrains Mono',monospace">₱150,000–₱250,000</td>
+            </tr>
+            <tr style="background:rgba(0,255,255,0.03)">
+              <td colspan="5" style="text-align:right;font-weight:700;color:var(--heading)">Total Networking Budget</td>
+              <td style="color:var(--lime);font-family:'JetBrains Mono',monospace;font-weight:700">₱2,000,000 (20%)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ══ 03 DIAGRAM ══ -->
+      <section class="section" id="diagram">
+        <div class="section-label">
+          <span class="section-num">03</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Network Diagram</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">IT COMSEE Corp. Network Topology</h2>
+        <p>The diagram below maps the full network from the internet gateway down to employee workstations across all three floors. Each color represents a different VLAN segment. The server rack and NAS connect directly to the core switch at 10 GbE; employee workstations connect at 1 GbE through their floor's access switch.</p>
+
+        <div class="callout blue">
+          <div class="callout-label">How to Read This Diagram</div>
+          <p><strong>Cyan lines</strong> = 10 GbE links (server rack backbone). <strong>White/gray lines</strong> = 1 GbE uplinks between switches. <strong>Colored boxes at the bottom</strong> = employee workstations in their respective VLAN. The firewall is the only connection to the internet  all traffic passes through it.</p>
+        </div>
+
+        <div class="diagram-wrap">
+          <!-- Cisco Packet Tracer-style topology: Router0 bottom → Core Switch center → 3 Access Switches → APs + End Devices -->
+          <svg viewBox="0 0 1060 860" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px;height:auto;font-family:'JetBrains Mono',monospace;">
+            <defs>
+              <pattern id="gnet" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M24 0L0 0 0 24" fill="none" stroke="#111122" stroke-width=".5"/>
+              </pattern>
+              <filter id="glow-c"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <filter id="glow-m"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <filter id="glow-o"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+              <!-- Cisco switch symbol -->
+              <symbol id="cisco-switch" viewBox="0 0 52 28">
+                <rect x="1" y="4" width="50" height="20" rx="3" fill="#12284C" stroke="#00BFFF" stroke-width="1.3"/>
+                <rect x="5"  y="7" width="4" height="4" rx="1" fill="#00FFCC" opacity=".8"/>
+                <rect x="11" y="7" width="4" height="4" rx="1" fill="#00FFCC" opacity=".8"/>
+                <rect x="17" y="7" width="4" height="4" rx="1" fill="#00FFCC" opacity=".6"/>
+                <rect x="23" y="7" width="4" height="4" rx="1" fill="#00FFCC" opacity=".6"/>
+                <rect x="29" y="7" width="4" height="4" rx="1" fill="#00FFCC" opacity=".4"/>
+                <rect x="35" y="7" width="4" height="4" rx="1" fill="#00FFCC" opacity=".4"/>
+                <rect x="5"  y="14" width="4" height="4" rx="1" fill="#00FFCC" opacity=".4"/>
+                <rect x="11" y="14" width="4" height="4" rx="1" fill="#00FFCC" opacity=".4"/>
+                <rect x="17" y="14" width="4" height="4" rx="1" fill="#00FFCC" opacity=".3"/>
+                <rect x="23" y="14" width="4" height="4" rx="1" fill="#00FFCC" opacity=".3"/>
+                <rect x="29" y="14" width="4" height="4" rx="1" fill="#00FFCC" opacity=".2"/>
+                <rect x="35" y="14" width="4" height="4" rx="1" fill="#00FFCC" opacity=".2"/>
+                <rect x="42" y="6" width="7" height="16" rx="1" fill="#0A1A30" stroke="#00BFFF" stroke-opacity=".4" stroke-width=".8"/>
+              </symbol>
+
+              <!-- Cisco router symbol -->
+              <symbol id="cisco-router" viewBox="0 0 50 50">
+                <circle cx="25" cy="25" r="22" fill="#1A0A30" stroke="#AA44FF" stroke-width="1.5"/>
+                <path d="M10 25 Q18 14 25 25 Q32 36 40 25" fill="none" stroke="#AA44FF" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M10 25 Q18 36 25 25 Q32 14 40 25" fill="none" stroke="#AA44FF" stroke-width="1" stroke-opacity=".5" stroke-linecap="round"/>
+                <circle cx="10" cy="25" r="2.5" fill="#AA44FF"/>
+                <circle cx="40" cy="25" r="2.5" fill="#AA44FF"/>
+                <line x1="25" y1="3" x2="25" y2="11" stroke="#AA44FF" stroke-width="1.5"/>
+                <line x1="25" y1="39" x2="25" y2="47" stroke="#AA44FF" stroke-width="1.5"/>
+              </symbol>
+
+              <!-- Cisco AP symbol -->
+              <symbol id="cisco-ap" viewBox="0 0 44 36">
+                <rect x="10" y="18" width="24" height="14" rx="2" fill="#12284C" stroke="#FF8800" stroke-width="1.2"/>
+                <path d="M7 16 Q22 2 37 16" fill="none" stroke="#FF8800" stroke-width="1.5" stroke-opacity=".7" stroke-linecap="round"/>
+                <path d="M12 18 Q22 8 32 18" fill="none" stroke="#FF8800" stroke-width="1.3" stroke-opacity=".9" stroke-linecap="round"/>
+                <circle cx="22" cy="22" r="2" fill="#FF8800"/>
+                <line x1="22" y1="24" x2="22" y2="32" stroke="#FF8800" stroke-width="1.2"/>
+              </symbol>
+
+              <!-- PC symbol -->
+              <symbol id="cisco-pc" viewBox="0 0 40 38">
+                <rect x="4" y="2" width="32" height="24" rx="2" fill="#0A1A30" stroke="#00BFFF" stroke-width="1.2"/>
+                <rect x="7" y="5" width="26" height="18" fill="#0D2040" opacity=".8"/>
+                <rect x="14" y="27" width="12" height="4" rx="1" fill="#12284C" stroke="#00BFFF" stroke-opacity=".4" stroke-width=".8"/>
+                <rect x="8" y="31" width="24" height="3" rx="1" fill="#12284C" stroke="#00BFFF" stroke-opacity=".3" stroke-width=".8"/>
+                <rect x="10" y="7" width="6" height="4" rx="1" fill="#00FFCC" opacity=".3"/>
+                <rect x="18" y="7" width="10" height="2" rx="1" fill="#4A6A8A" opacity=".5"/>
+                <rect x="18" y="11" width="8" height="2" rx="1" fill="#4A6A8A" opacity=".4"/>
+              </symbol>
+
+              <!-- Laptop symbol -->
+              <symbol id="cisco-laptop" viewBox="0 0 44 34">
+                <rect x="4" y="2" width="36" height="22" rx="2" fill="#0A1A30" stroke="#00FF88" stroke-width="1.2"/>
+                <rect x="7" y="5" width="30" height="16" fill="#0D2040" opacity=".8"/>
+                <path d="M0 25 Q22 22 44 25 L40 31 Q22 28 4 31 Z" fill="#12284C" stroke="#00FF88" stroke-opacity=".4" stroke-width=".8"/>
+                <rect x="12" y="7" width="8" height="4" rx="1" fill="#00FF88" opacity=".2"/>
+                <rect x="22" y="7" width="10" height="2" rx="1" fill="#4A6A8A" opacity=".5"/>
+              </symbol>
+
+              <!-- Printer symbol -->
+              <symbol id="cisco-printer" viewBox="0 0 44 38">
+                <rect x="4" y="12" width="36" height="22" rx="2" fill="#12284C" stroke="#FFAA00" stroke-width="1.2"/>
+                <rect x="10" y="6" width="24" height="10" rx="1" fill="#0A1A30" stroke="#FFAA00" stroke-opacity=".5" stroke-width=".8"/>
+                <rect x="8" y="22" width="28" height="8" rx="1" fill="#0D2040"/>
+                <rect x="14" y="24" width="16" height="4" rx="1" fill="#FFAA00" opacity=".15"/>
+                <circle cx="34" cy="18" r="2.5" fill="#FFAA00" opacity=".7"/>
+                <line x1="10" y1="34" x2="34" y2="34" stroke="#FFAA00" stroke-opacity=".2" stroke-width=".8"/>
+              </symbol>
+
+              <!-- Server symbol -->
+              <symbol id="cisco-server" viewBox="0 0 36 46">
+                <rect x="2" y="2" width="32" height="42" rx="2" fill="#0D0D1A" stroke="#00FFCC" stroke-width="1.2"/>
+                <rect x="5" y="6"  width="26" height="8" rx="1" fill="#12121E" stroke="#00FFCC" stroke-opacity=".3" stroke-width=".7"/>
+                <rect x="5" y="17" width="26" height="8" rx="1" fill="#12121E" stroke="#00FFCC" stroke-opacity=".3" stroke-width=".7"/>
+                <rect x="5" y="28" width="26" height="8" rx="1" fill="#12121E" stroke="#FF00FF" stroke-opacity=".3" stroke-width=".7"/>
+                <circle cx="27" cy="10" r="2" fill="#00FF41" opacity=".7"/>
+                <circle cx="27" cy="21" r="2" fill="#00FF41" opacity=".7"/>
+                <circle cx="27" cy="32" r="2" fill="#FF00FF" opacity=".5"/>
+                <rect x="7" y="8" width="12" height="2" rx="1" fill="#4A6A8A" opacity=".5"/>
+                <rect x="7" y="19" width="10" height="2" rx="1" fill="#4A6A8A" opacity=".5"/>
+              </symbol>
+
+              <!-- NAS symbol -->
+              <symbol id="cisco-nas" viewBox="0 0 40 44">
+                <rect x="2" y="2" width="36" height="40" rx="2" fill="#0D1A0D" stroke="#00FF41" stroke-width="1.3"/>
+                <rect x="5" y="7"  width="30" height="6" rx="1" fill="#12121E" stroke="#00FF41" stroke-opacity=".4" stroke-width=".7"/>
+                <rect x="5" y="16" width="30" height="6" rx="1" fill="#12121E" stroke="#00FF41" stroke-opacity=".4" stroke-width=".7"/>
+                <rect x="5" y="25" width="30" height="6" rx="1" fill="#12121E" stroke="#00FF41" stroke-opacity=".4" stroke-width=".7"/>
+                <rect x="5" y="34" width="30" height="6" rx="1" fill="#12121E" stroke="#00FF41" stroke-opacity=".3" stroke-width=".7"/>
+                <circle cx="31" cy="10" r="1.8" fill="#00FF41" opacity=".8"/>
+                <circle cx="31" cy="19" r="1.8" fill="#00FF41" opacity=".8"/>
+                <circle cx="31" cy="28" r="1.8" fill="#00FF41" opacity=".6"/>
+                <circle cx="31" cy="37" r="1.8" fill="#00FF41" opacity=".4"/>
+              </symbol>
+            </defs>
+
+            <rect width="1060" height="860" fill="url(#gnet)" rx="4"/>
+
+            <!-- ════════════════════════════════════════════════
+                 CORE SWITCH  (center, y≈420)
+            ════════════════════════════════════════════════ -->
+            <use href="#cisco-switch" x="490" y="406" width="80" height="44"/>
+            <text x="530" y="400" fill="#00BFFF" font-size="8"  text-anchor="middle" font-weight="700" letter-spacing="1" filter="url(#glow-c)">2960-24TT</text>
+            <text x="530" y="461" fill="#00FFCC" font-size="7.5" text-anchor="middle" font-weight="700" letter-spacing="1.5" filter="url(#glow-c)">CORE SWITCH</text>
+
+            <!-- ════════════════════════════════════════════════
+                 ROUTER0 (ISR4331)  bottom center
+            ════════════════════════════════════════════════ -->
+            <use href="#cisco-router" x="505" y="730" width="50" height="50"/>
+            <text x="530" y="725" fill="#AA44FF" font-size="7.5" text-anchor="middle" font-weight="700" filter="url(#glow-m)">ISR4331</text>
+            <text x="530" y="790" fill="#AA44FF" font-size="7"   text-anchor="middle" opacity=".8">Router0</text>
+
+            <!-- Core → Router0 -->
+            <line x1="530" y1="450" x2="530" y2="730" stroke="#AA44FF" stroke-width="1.5" opacity=".7"/>
+            <text x="538" y="600" fill="#AA44FF" font-size="6.5" opacity=".6">WAN</text>
+
+            <!-- ════════════════════════════════════════════════
+                 NAS   bottom-left of core
+            ════════════════════════════════════════════════ -->
+            <use href="#cisco-nas" x="348" y="720" width="40" height="44"/>
+            <text x="368" y="715" fill="#00FF41" font-size="6.5" text-anchor="middle" font-weight="700" filter="url(#glow-c)">Server-PT</text>
+            <text x="368" y="774" fill="#00FF41" font-size="6.5" text-anchor="middle">NETWORK ATTACHED</text>
+            <text x="368" y="784" fill="#00FF41" font-size="6.5" text-anchor="middle">STORAGE</text>
+
+            <!-- Core → NAS (10GbE) -->
+            <line x1="500" y1="450" x2="368" y2="720" stroke="#00FFFF" stroke-width="2" filter="url(#glow-c)"/>
+            <text x="415" y="600" fill="#00FFFF" font-size="6.5" font-weight="700" filter="url(#glow-c)">10GbE</text>
+
+            <!-- ════════════════════════════════════════════════
+                 SERVER RACK   bottom-right of core
+            ════════════════════════════════════════════════ -->
+            <use href="#cisco-server" x="662" y="718" width="36" height="46"/>
+            <text x="680" y="713" fill="#00FFCC" font-size="6.5" text-anchor="middle" font-weight="700" filter="url(#glow-c)">Server-PT</text>
+            <text x="680" y="774" fill="#00FFCC" font-size="6.5" text-anchor="middle">SERVER RACK</text>
+
+            <!-- Core → Server Rack (10GbE) -->
+            <line x1="560" y1="450" x2="680" y2="718" stroke="#00FFFF" stroke-width="2" filter="url(#glow-c)"/>
+            <text x="640" y="600" fill="#00FFFF" font-size="6.5" font-weight="700" filter="url(#glow-c)">10GbE</text>
+
+            <use href="#cisco-switch" x="490" y="236" width="80" height="44"/>
+            <text x="530" y="230" fill="#00BFFF" font-size="8"  text-anchor="middle" font-weight="700" letter-spacing="1">2960-24TT</text>
+            <text x="530" y="291" fill="#00FFCC" font-size="7.5" text-anchor="middle" font-weight="700" letter-spacing="1">2F ACCESS SWITCH</text>
+
+            <!-- Core → 2F switch (uplink) -->
+            <line x1="530" y1="406" x2="530" y2="280" stroke="#aaa" stroke-width="1.5" opacity=".6"/>
+            <text x="538" y="348" fill="#4A4A6A" font-size="6.5">1GbE</text>
+
+            <!-- 2F end devices: Laptop0, Laptop1 (top-left of 2F), Printer1 (top-right), Laptop2 (far right), PC3 (right) -->
+            <!-- Laptop0  top of 2F switch, left -->
+            <use href="#cisco-laptop" x="390" y="108" width="44" height="34"/>
+            <text x="412" y="104" fill="#00FF88" font-size="6.5" text-anchor="middle">Laptop-PT</text>
+            <text x="412" y="152" fill="#00FF88" font-size="6.5" text-anchor="middle">Laptop0</text>
+            <line x1="510" y1="236" x2="434" y2="142" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- Laptop1  top of 2F switch, center -->
+            <use href="#cisco-laptop" x="468" y="108" width="44" height="34"/>
+            <text x="490" y="104" fill="#00FF88" font-size="6.5" text-anchor="middle">Laptop-PT</text>
+            <text x="490" y="152" fill="#00FF88" font-size="6.5" text-anchor="middle">Laptop1</text>
+            <line x1="520" y1="236" x2="490" y2="142" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- Printer1  top-right of 2F -->
+            <use href="#cisco-printer" x="558" y="110" width="44" height="38"/>
+            <text x="580" y="106" fill="#FFAA00" font-size="6.5" text-anchor="middle">Printer-PT</text>
+            <text x="580" y="158" fill="#FFAA00" font-size="6.5" text-anchor="middle">Printer 1</text>
+            <line x1="545" y1="236" x2="580" y2="148" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- Laptop2  far right of 2F -->
+            <use href="#cisco-laptop" x="718" y="180" width="44" height="34"/>
+            <text x="740" y="176" fill="#00FF88" font-size="6.5" text-anchor="middle">Laptop-PT</text>
+            <text x="740" y="224" fill="#00FF88" font-size="6.5" text-anchor="middle">Laptop2</text>
+            <line x1="570" y1="248" x2="718" y2="200" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- PC3  right of 2F -->
+            <use href="#cisco-pc" x="800" y="224" width="40" height="38"/>
+            <text x="820" y="220" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC-PT</text>
+            <text x="820" y="272" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC3</text>
+            <line x1="570" y1="258" x2="800" y2="245" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- 2F APs: Access Point - 2FA and 2FB (below 2F switch, flanking) -->
+            <use href="#cisco-ap" x="432" y="308" width="44" height="36"/>
+            <text x="454" y="305" fill="#FF8800" font-size="6.5" text-anchor="middle">AccessPoint-PT</text>
+            <text x="454" y="354" fill="#FF8800" font-size="6.5" text-anchor="middle">Access Point - 2FA</text>
+            <line x1="510" y1="280" x2="454" y2="308" stroke="#FF8800" stroke-width="1.2" opacity=".6"/>
+
+            <use href="#cisco-ap" x="576" y="308" width="44" height="36"/>
+            <text x="598" y="305" fill="#FF8800" font-size="6.5" text-anchor="middle">AccessPoint-PT</text>
+            <text x="598" y="354" fill="#FF8800" font-size="6.5" text-anchor="middle">Access Point - 2FB</text>
+            <line x1="550" y1="280" x2="598" y2="308" stroke="#FF8800" stroke-width="1.2" opacity=".6"/>
+
+            <!-- 2FA/2FB connect down to core -->
+            <line x1="454" y1="344" x2="510" y2="406" stroke="#FF8800" stroke-width="1" stroke-dasharray="4,3" opacity=".4"/>
+            <line x1="598" y1="344" x2="550" y2="406" stroke="#FF8800" stroke-width="1" stroke-dasharray="4,3" opacity=".4"/>
+
+            <!-- ════════════════════════════════════════════════
+                 1F ACCESS SWITCH   left of core
+            ════════════════════════════════════════════════ -->
+            <use href="#cisco-switch" x="204" y="376" width="80" height="44"/>
+            <text x="244" y="370" fill="#00BFFF" font-size="8"  text-anchor="middle" font-weight="700" letter-spacing="1">2960-24TT</text>
+            <text x="244" y="431" fill="#00FFCC" font-size="7.5" text-anchor="middle" font-weight="700" letter-spacing="1">1F ACCESS SWITCH</text>
+
+            <!-- Core → 1F switch -->
+            <line x1="490" y1="424" x2="284" y2="398" stroke="#aaa" stroke-width="1.5" opacity=".6"/>
+            <text x="380" y="405" fill="#4A4A6A" font-size="6.5">1GbE</text>
+
+            <!-- 1F end devices: PC1 (upper-left), Printer0 (left), PC0 (far left) -->
+            <!-- PC1  upper-left of 1F switch -->
+            <use href="#cisco-pc" x="144" y="248" width="40" height="38"/>
+            <text x="164" y="244" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC-PT</text>
+            <text x="164" y="296" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC1</text>
+            <line x1="218" y1="376" x2="164" y2="286" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- Printer0  left of 1F switch -->
+            <use href="#cisco-printer" x="76" y="300" width="44" height="38"/>
+            <text x="98" y="296" fill="#FFAA00" font-size="6.5" text-anchor="middle">Printer-PT</text>
+            <text x="98" y="348" fill="#FFAA00" font-size="6.5" text-anchor="middle">Printer0</text>
+            <line x1="204" y1="390" x2="120" y2="320" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- PC0  far left -->
+            <use href="#cisco-pc" x="30" y="358" width="40" height="38"/>
+            <text x="50" y="354" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC-PT</text>
+            <text x="50" y="406" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC0</text>
+            <line x1="204" y1="398" x2="70" y2="378" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- 1F APs: Access Point - 1FA and 1FB (below 1F switch) -->
+            <use href="#cisco-ap" x="140" y="454" width="44" height="36"/>
+            <text x="162" y="450" fill="#FF8800" font-size="6.5" text-anchor="middle">AccessPoint-PT</text>
+            <text x="162" y="500" fill="#FF8800" font-size="6.5" text-anchor="middle">Access Point - 1FA</text>
+            <line x1="218" y1="420" x2="162" y2="454" stroke="#FF8800" stroke-width="1.2" opacity=".6"/>
+
+            <use href="#cisco-ap" x="238" y="454" width="44" height="36"/>
+            <text x="260" y="450" fill="#FF8800" font-size="6.5" text-anchor="middle">AccessPoint-PT</text>
+            <text x="260" y="500" fill="#FF8800" font-size="6.5" text-anchor="middle">Access Point - 1FB</text>
+            <line x1="260" y1="420" x2="262" y2="454" stroke="#FF8800" stroke-width="1.2" opacity=".6"/>
+
+            <!-- 3F ACCESS SWITCH-->
+            <use href="#cisco-switch" x="776" y="376" width="80" height="44"/>
+            <text x="816" y="370" fill="#00BFFF" font-size="8"  text-anchor="middle" font-weight="700" letter-spacing="1">2960-24TT</text>
+            <text x="816" y="431" fill="#00FFCC" font-size="7.5" text-anchor="middle" font-weight="700" letter-spacing="1">3F ACCESS SWITCH</text>
+
+            <!-- Core → 3F switch -->
+            <line x1="570" y1="424" x2="776" y2="398" stroke="#aaa" stroke-width="1.5" opacity=".6"/>
+            <text x="680" y="405" fill="#4A4A6A" font-size="6.5">1GbE</text>
+
+            <use href="#cisco-pc" x="990" y="356" width="40" height="38"/>
+            <text x="1010" y="352" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC-PT</text>
+            <text x="1010" y="404" fill="#00BFFF" font-size="6.5" text-anchor="middle">PC2</text>
+            <line x1="856" y1="396" x2="990" y2="376" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+
+            <!-- 3F APs: Access Point - 3FA and 3FB (below 3F switch) -->
+            <use href="#cisco-ap" x="712" y="454" width="44" height="36"/>
+            <text x="734" y="450" fill="#FF8800" font-size="6.5" text-anchor="middle">AccessPoint-PT</text>
+            <text x="734" y="500" fill="#FF8800" font-size="6.5" text-anchor="middle">Access Point - 3FA</text>
+            <line x1="790" y1="420" x2="734" y2="454" stroke="#FF8800" stroke-width="1.2" opacity=".6"/>
+
+            <use href="#cisco-ap" x="812" y="454" width="44" height="36"/>
+            <text x="834" y="450" fill="#FF8800" font-size="6.5" text-anchor="middle">AccessPoint-PT</text>
+            <text x="834" y="500" fill="#FF8800" font-size="6.5" text-anchor="middle">Access Point - 3FB</text>
+            <line x1="836" y1="420" x2="836" y2="454" stroke="#FF8800" stroke-width="1.2" opacity=".6"/>
+
+            <!--CONNECTION DOT MARKERS (orange squares like PT) -->
+
+            <rect x="526" y="448" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="502" y="448" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="556" y="448" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="526" y="404" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="488" y="420" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="564" y="420" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <!-- 2F switch dots -->
+            <rect x="526" y="234" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="526" y="278" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <!-- 1F switch dots -->
+            <rect x="202" y="394" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="280" y="394" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <!-- 3F switch dots -->
+            <rect x="774" y="394" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <rect x="852" y="394" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <!-- Router dot -->
+            <rect x="526" y="728" width="8" height="8" fill="#00FF41" opacity=".9"/>
+            <!-- NAS dot -->
+            <rect x="364" y="718" width="8" height="8" fill="#00FF41" opacity=".9"/>
+            <!-- Server dot -->
+            <rect x="676" y="716" width="8" height="8" fill="#00FF41" opacity=".9"/>
+
+
+            <rect x="20" y="810" width="1020" height="42" rx="0" fill="#0D0D1A" stroke="#1A1A2E"/>
+            <text x="40" y="826" fill="#4A4A6A" font-size="7" font-weight="700" letter-spacing="2">LEGEND</text>
+            <line x1="100" y1="823" x2="130" y2="823" stroke="#00FFFF" stroke-width="2.5" filter="url(#glow-c)"/>
+            <text x="135" y="826" fill="#4A4A6A" font-size="6.5">10 GbE backbone</text>
+            <line x1="248" y1="823" x2="278" y2="823" stroke="#aaa" stroke-width="1.2" opacity=".5"/>
+            <text x="283" y="826" fill="#4A4A6A" font-size="6.5">1 GbE uplink</text>
+            <line x1="380" y1="823" x2="410" y2="823" stroke="#FF8800" stroke-width="1.2" stroke-dasharray="4,3"/>
+            <text x="415" y="826" fill="#4A4A6A" font-size="6.5">Wireless (AP)</text>
+            <line x1="510" y1="823" x2="540" y2="823" stroke="#AA44FF" stroke-width="1.5"/>
+            <text x="545" y="826" fill="#4A4A6A" font-size="6.5">WAN / Router</text>
+            <rect x="648" y="818" width="8" height="8" fill="#FF8800" opacity=".9"/>
+            <text x="660" y="826" fill="#4A4A6A" font-size="6.5">Connection node</text>
+            <text x="40"  y="844" fill="#00BFFF"  font-size="6.5" font-weight="700">■</text><text x="52"  y="844" fill="#4A4A6A" font-size="6.5">VLAN 10  Administration (192.168.10.0/24)</text>
+            <text x="280" y="844" fill="#00FF41"  font-size="6.5" font-weight="700">■</text><text x="292" y="844" fill="#4A4A6A" font-size="6.5">VLAN 20  Operations (192.168.20.0/24)</text>
+            <text x="500" y="844" fill="#FF00FF"  font-size="6.5" font-weight="700">■</text><text x="512" y="844" fill="#4A4A6A" font-size="6.5">VLAN 30  IT Support (192.168.30.0/24)</text>
+            <text x="720" y="844" fill="#4A4A6A" font-size="6.5" font-weight="700">■</text><text x="732" y="844" fill="#4A4A6A" font-size="6.5">VLAN 99  Management (10.0.99.0/24)</text>
+          </svg>
+          <div class="diagram-caption">Figure 4.1  IT COMSEE Corp. Cisco Packet Tracer–Style Network Topology · Core Switch · 3× Floor Access Switches · 6× APs · Router0 (ISR4331)</div>
+        </div>
+      </section>
+
+
+      <section class="section" id="media">
+        <div class="section-label">
+          <span class="section-num">04</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Transmission Media</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">How the Signal Travels</h2>
+
+        <p>Transmission media refers to the physical medium through which data signals travel between devices.
+  Each network connection relies on a specific medium, such as copper cabling, fiber optics, or wireless transmission,
+  selected based on bandwidth requirements, distance, and environmental conditions.
+  The IT COMSEE Corp. network design incorporates three types of media, each aligned with a specific operational requirement.
+</p>
+
+        <div class="media-grid">
+          <div class="media-card">
+            <div class="media-icon">🔌</div>
+            <div class="media-name">Cat6A UTP</div>
+            <div class="media-spec">1 GbE · up to 100m</div>
+            <div class="media-use">Horizontal runs from floor switches to every workstation wall port. Supports up to 10 GbE but deployed at 1 GbE for cost efficiency at the edge.</div>
+          </div>
+          <div class="media-card">
+            <div class="media-icon">💡</div>
+            <div class="media-name">OM4 Multimode Fiber</div>
+            <div class="media-spec">10 GbE · up to 400m</div>
+            <div class="media-use">Vertical backbone runs between floors and into the server room where 10 GbE speeds are needed. Immune to electrical interference  ideal near server UPS equipment.</div>
+          </div>
+          <div class="media-card">
+            <div class="media-icon">⚡</div>
+            <div class="media-name">SFP+ DAC Twinax</div>
+            <div class="media-spec">10 GbE · up to 5m</div>
+            <div class="media-use">Direct-attach copper cables inside the server room connecting each server and the NAS directly to the core switch SFP+ ports. Cheaper than fiber transceivers for short distances.</div>
+          </div>
+          <div class="media-card">
+            <div class="media-icon">📡</div>
+            <div class="media-name">802.11ac Wave 2</div>
+            <div class="media-spec">Up to 1.3 Gbps · 5 GHz</div>
+            <div class="media-use">Wireless medium for employee laptops, mobile devices, and visitors. Dual-band (2.4/5 GHz). Each SSID is mapped to a VLAN  wireless users get the same security policy as wired users in the same department.</div>
+          </div>
+        </div>
+
+        <div class="highlight-block" style="margin-top:1.4rem">
+          <h3 class="sub-title">Why Not All Fiber, or All Copper?</h3>
+          <p>
+  Fiber optic cabling offers higher bandwidth capacity and is not susceptible to electromagnetic interference.
+  However, it involves higher material costs and requires specialized installation and termination.
+  Deploying fiber to every workstation in an office environment of this scale would significantly increase costs
+  without providing proportional performance benefits, as Gigabit Ethernet over copper remains sufficient for typical user workloads.
+</p>
+
+<p>
+  Fiber and DAC twinax connections are therefore reserved for high-throughput links within the server environment,
+  where continuous data transfer occurs between servers and storage systems.
+  This selective deployment of transmission media reflects standard enterprise network design practices (Cisco Systems, 2023).
+</p><p style="margin:0">Fiber and DAC twinax are reserved for the links where it actually matters: the server room, where large amounts of data move continuously between servers and storage. This hybrid media approach is standard practice in enterprise campus design. (Cisco Systems, 2023)</p>
+        </div>
+      </section>
+
+      <!-- ══ 05 OSI ══ -->
+      <section class="section" id="osi">
+        <div class="section-label">
+          <span class="section-num">05</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">OSI Model</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">The OSI Model</h2>
+
+        <div class="osi-stack">
+          <div class="osi-row active-layer" data-layer="7">
+            <div class="osi-num">7</div>
+            <div class="osi-name">Application</div>
+            <div class="osi-desc"><strong style="color:var(--heading)">Relevance:</strong> HTTP/HTTPS (internal web portal, Grafana dashboard), SMB (file sharing between AD File Server VM and employee workstations), LDAP (user authentication requests from all devices to the AD VM), DNS (hostname resolution for all internal services). These are the protocols employees and applications interact with directly.</div>
+          </div>
+          <div class="osi-row active-layer" data-layer="6">
+            <div class="osi-num">6</div>
+            <div class="osi-name">Presentation</div>
+            <div class="osi-desc"><strong style="color:var(--heading)">Relevance:</strong> TLS 1.3 encryption of all web traffic (HTTPS to the internal portal and Grafana). SSL/TLS certificates managed by the IT Support team ensure data cannot be read in transit even inside the corporate network  relevant for LDAP authentication and database queries crossing VLANs through the core switch.</div>
+          </div>
+          <div class="osi-row" data-layer="5">
+            <div class="osi-num">5</div>
+            <div class="osi-name">Session</div>
+            <div class="osi-desc"><strong style="color:var(--heading)">Relevance:</strong> Kerberos ticket sessions for Active Directory authentication (employees stay logged in without re-authenticating every request). SSH session management for IT Support access to Proxmox and servers. RPC sessions between the Backup Server VM and the VMs it is backing up.</div>
+          </div>
+          <div class="osi-row active-layer" data-layer="4">
+            <div class="osi-num">4</div>
+            <div class="osi-name">Transport</div>
+            <div class="osi-desc"><strong style="color:var(--heading)">Relevance:</strong> <strong style="color:var(--cyan)">TCP</strong>  used for all reliable, ordered data transfers: file downloads from the shared file server, database queries, VM backup data streams. <strong style="color:var(--cyan)">UDP</strong>  used for DNS queries, DHCP address assignment, and SNMP monitoring polls (speed matters more than guaranteed delivery). Port numbers (e.g., 443 HTTPS, 445 SMB, 5900 VNC) are defined at this layer and enforced by firewall rules.</div>
+          </div>
+          <div class="osi-row active-layer" data-layer="3">
+            <div class="osi-num">3</div>
+            <div class="osi-name">Network</div>
+            <div class="osi-desc"><strong style="color:var(--heading)">Relevance:</strong> IPv4 addressing  each VLAN gets its own /24 subnet (192.168.10.0, 192.168.20.0, 192.168.30.0, 10.0.99.0). The Layer 3 core switch routes traffic between subnets for authorized inter-VLAN communication (e.g., Operations accessing the File Server VM in the server rack). The FortiGate firewall operates at this layer for NAT, routing, and stateful inspection.</div>
+          </div>
+          <div class="osi-row active-layer" data-layer="2">
+            <div class="osi-num">2</div>
+            <div class="osi-name">Data Link</div>
+            <div class="osi-desc"><strong style="color:var(--heading)">Relevance:</strong> Ethernet frames, MAC address table lookups at each switch, and <strong style="color:var(--cyan)">IEEE 802.1Q VLAN tagging</strong>. When an employee on Floor 2 sends traffic, their access switch tags each frame with the correct VLAN ID before forwarding it up the trunk link to the core switch. Spanning Tree Protocol (STP) prevents bridging loops on the dual uplinks from access switches. This is the most operationally significant layer for this design.</div>
+          </div>
+          <div class="osi-row active-layer" data-layer="1">
+            <div class="osi-num">1</div>
+            <div class="osi-name">Physical</div>
+            <div class="osi-desc"><strong style="color:var(--heading)">Relevance:</strong> Cat6A copper cabling (electrical signal, 1 GbE to workstations), OM4 multimode fiber (light signal, 10 GbE backbone), SFP+ DAC twinax (10 GbE server room), RJ-45 and LC fiber connectors, patch panels in each floor's comms cabinet, switch ports, and NIC hardware in servers and workstations. A cable fault or bad RJ-45 crimp at this layer stops everything above it from working.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 06 TCP/IP ══ -->
+      <section class="section" id="tcpip">
+        <div class="section-label">
+          <span class="section-num">06</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">TCP/IP &amp; Addressing</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">TCP/IP & IPv4 Addressing Strategy</h2>
+
+        <p>IT COMSEE Corp.'s addressing scheme follows <strong style="color:var(--cyan)">IPv4</strong> as the primary protocol, with VLAN-based subnet separation ensuring that Administration, Operations, and IT Support traffic is logically isolated even when sharing the same physical infrastructure.</p>
+
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab(this,'ip-scheme')">IP Address Scheme</button>
+          <button class="tab-btn" onclick="switchTab(this,'ip-dhcp')">DHCP &amp; DNS</button>
+          <button class="tab-btn" onclick="switchTab(this,'ip-v6')">IPv6 Consideration</button>
+          <button class="tab-btn" onclick="switchTab(this,'ip-routing')">Inter-VLAN Routing</button>
+        </div>
+
+        <div class="tab-panel active" id="ip-scheme">
+          <table class="ip-table">
+            <thead>
+              <tr><th>VLAN</th><th>Department</th><th>Subnet</th><th>Gateway</th><th>DHCP Range</th><th>Static Hosts</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="vlan-chip" style="color:#00FFFF;border-color:rgba(0,255,255,.3)">VLAN 10</span></td>
+                <td><strong style="color:var(--heading)">Administration</strong></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--cyan)">192.168.10.0/24</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem">192.168.10.1</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)">.100 – .199</td>
+                <td style="font-size:.75rem;color:var(--muted)">Printers: .10–.20</td>
+              </tr>
+              <tr>
+                <td><span class="vlan-chip" style="color:#00FF41;border-color:rgba(0,255,65,.3)">VLAN 20</span></td>
+                <td><strong style="color:var(--heading)">Operations</strong></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--lime)">192.168.20.0/24</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem">192.168.20.1</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)">.100 – .199</td>
+                <td style="font-size:.75rem;color:var(--muted)">Scanners: .10–.20</td>
+              </tr>
+              <tr>
+                <td><span class="vlan-chip" style="color:#FF00FF;border-color:rgba(255,0,255,.3)">VLAN 30</span></td>
+                <td><strong style="color:var(--heading)">IT Support</strong></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--magenta)">192.168.30.0/24</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem">192.168.30.1</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)">.100 – .199</td>
+                <td style="font-size:.75rem;color:var(--muted)">Tools: .10–.30</td>
+              </tr>
+              <tr>
+                <td><span class="vlan-chip" style="color:#4A4A6A;border-color:rgba(74,74,106,.5)">VLAN 99</span></td>
+                <td><strong style="color:var(--heading)">Management</strong></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--muted)">10.0.99.0/24</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem">10.0.99.1</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)">Static only</td>
+                <td style="font-size:.75rem;color:var(--muted)">Server iDRAC, Proxmox nodes, switches</td>
+              </tr>
+              <tr style="background:rgba(0,255,255,0.03)">
+                <td colspan="2"><strong style="color:var(--heading)">Server Rack (VM infrastructure)</strong></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--cyan)">10.0.10.0/24</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem">10.0.10.1</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)">Static only</td>
+                <td style="font-size:.75rem;color:var(--muted)">AD: .10, File: .11, DB: .12, PBS: .13</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tab-panel" id="ip-dhcp">
+          <div class="highlight-block">
+            <h3 class="sub-title">DHCP  Automatic Address Assignment</h3>
+            <p>The <strong>Active Directory / LDAP Virtual Machine</strong> on Server 1 acts as the DHCP server for all VLANs. The core switch forwards DHCP requests from each VLAN (DHCP relay) to the single centralized DHCP server, which responds with the correct IP range for the requesting VLAN.</p>
+            <p>This means an employee's laptop is automatically assigned an IP address in the correct subnet the moment it connects  whether wired on any floor or wirelessly via an AP. Centralizing DHCP on the AD VM also ensures that hostname registrations (DNS records) are created automatically at assignment time, keeping the internal DNS zone up to date.</p>
+            <h3 class="sub-title" style="margin-top:1rem">DNS  Internal Name Resolution</h3>
+            <p>An internal DNS zone  <span style="color:var(--cyan);font-family:'JetBrains Mono',monospace">itcomsee.local</span>  resolves all internal service names to their IP addresses. For example:</p>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:.35rem;margin:.5rem 0;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--muted)">
+              <li><span style="color:var(--cyan)">files.itcomsee.local</span> → 10.0.10.11 (File Server VM)</li>
+              <li><span style="color:var(--cyan)">db.itcomsee.local</span> → 10.0.10.12 (Database VM)</li>
+              <li><span style="color:var(--cyan)">backup.itcomsee.local</span> → 10.0.10.13 (PBS VM)</li>
+              <li><span style="color:var(--cyan)">monitoring.itcomsee.local</span> → 10.0.10.20 (Grafana container)</li>
+            </ul>
+            <p style="margin:0">External DNS queries (e.g., google.com) are forwarded through the FortiGate firewall to the ISP's resolvers or Cloudflare (1.1.1.1). Internal records never leave the corporate network.</p>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="ip-v6">
+          <div class="highlight-block accent">
+            <h3 class="sub-title">IPv6  Future-Proofing Consideration</h3>
+            <p>IPv4 has a theoretical maximum of approximately 4.3 billion unique addresses globally  a pool that has been exhausted at the regional level since 2011. While a private organization using RFC 1918 private addressing (192.168.x.x, 10.x.x.x) is insulated from this globally for now, IPv6 adoption is accelerating and will eventually be unavoidable.</p>
+            <p>For this deployment, <strong style="color:var(--cyan)">IPv4 is the primary protocol</strong>. IPv6 is not deployed in Phase 1. However, the recommended approach for Phase 2 (within 12–24 months) is a <strong style="color:var(--heading)">dual-stack configuration</strong>:</p>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem;margin:.5rem 0;font-size:.82rem;color:var(--muted)">
+              <li style="display:flex;gap:.5rem"><span style="color:var(--lime)">▸</span>Assign IPv6 Unique Local Addresses (ULA, prefix <span style="font-family:'JetBrains Mono',monospace;color:var(--cyan)">fd00::/8</span>) to each VLAN alongside IPv4</li>
+              <li style="display:flex;gap:.5rem"><span style="color:var(--lime)">▸</span>Enable IPv6 on the FortiGate if the ISP provides a public IPv6 prefix</li>
+              <li style="display:flex;gap:.5rem"><span style="color:var(--lime)">▸</span>All internal services (DNS, file sharing, AD) should be verified for IPv6 compatibility before enabling</li>
+            </ul>
+            <p style="margin:0;font-size:.82rem;color:var(--muted)">Dual-stack ensures that both old IPv4-only devices and newer IPv6-capable devices can coexist without disruption during the transition period.</p>
+          </div>
+        </div>
+
+        <div class="tab-panel" id="ip-routing">
+          <div class="highlight-block">
+            <h3 class="sub-title">Inter-VLAN Routing  How Departments Talk to Shared Services</h3>
+            <p>VLANs are by design isolated from each other. An Administration workstation on 192.168.10.x cannot reach an Operations workstation on 192.168.20.x  and that is intentional. However, both departments need to reach shared services in the server rack (file server, database, AD authentication).</p>
+            <p>The Layer 3 core switch handles <strong style="color:var(--cyan)">inter-VLAN routing</strong>: it has a virtual interface (SVI  Switched Virtual Interface) in each VLAN acting as the gateway. When a workstation needs to reach a server in the server rack subnet, the packet goes to its VLAN gateway on the core switch, which routes it to the correct destination. Routing decisions are enforced by ACLs (Access Control Lists) that permit only the specific communication patterns the organization requires:</p>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem;margin:.5rem 0;font-size:.82rem;color:var(--muted)">
+              <li style="display:flex;gap:.5rem"><span style="color:var(--lime)">✔</span>All VLANs → Server rack (TCP 445 SMB, TCP 389 LDAP, TCP 443 HTTPS)  <strong style="color:var(--text)">permitted</strong></li>
+              <li style="display:flex;gap:.5rem"><span style="color:var(--lime)">✔</span>VLAN 30 (IT Support) → VLAN 99 (Management)  <strong style="color:var(--text)">permitted</strong></li>
+              <li style="display:flex;gap:.5rem"><span style="color:#FF0040)">✗</span>VLAN 10 → VLAN 20 or VLAN 30 (direct workstation-to-workstation)  <strong style="color:var(--text)">blocked</strong></li>
+              <li style="display:flex;gap:.5rem"><span style="color:#FF0040)">✗</span>Any VLAN → VLAN 99 Management (except VLAN 30 IT Support)  <strong style="color:var(--text)">blocked</strong></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 07 I/O DEVICES ══ -->
+      <section class="section" id="io-devices">
+        <div class="section-label">
+          <span class="section-num">07</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Input / Output Devices</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">I/O Devices in the Environment</h2>
+
+        <p>Input and output devices are the hardware through which users and systems interact with the computing environment. In a networked organization like IT COMSEE Corp., most I/O devices communicate over the network rather than being directly connected to a single computer  which means their behavior is governed by both local drivers and network protocols.</p>
+
+        <div class="io-grid">
+          <div class="io-col">
+            <div class="io-col-title" style="color:var(--cyan)">⌨ Input Devices</div>
+            <div class="io-item">
+              <div class="io-item-icon">⌨</div>
+              <div>
+                <div class="io-item-name">Keyboard &amp; Mouse</div>
+                <div class="io-item-desc">HID (Human Interface Device) class USB peripherals on all employee workstations. Generate hardware interrupts on keypress/movement events that the OS processes via the HID driver stack.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">🌐</div>
+              <div>
+                <div class="io-item-name">Network Interface Cards (NIC)</div>
+                <div class="io-item-desc">1 GbE NIC on employee workstations; dual 10 GbE NICs (bonded) on each server. The NIC generates a hardware interrupt when an Ethernet frame arrives, triggering the OS network stack. On servers, DMA transfers the received frame directly to RAM without CPU involvement.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">📷</div>
+              <div>
+                <div class="io-item-name">IP Security Cameras</div>
+                <div class="io-item-desc">PoE-powered IP cameras in common areas stream H.264 video over the Operations VLAN to an NVR (Network Video Recorder) application running as a container on Server 2.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">📠</div>
+              <div>
+                <div class="io-item-name">Barcode / RFID Scanners</div>
+                <div class="io-item-desc">Used by Operations department for asset tracking. USB or wireless (Bluetooth/Wi-Fi) scanners feed data into an inventory management web application hosted as a Docker container.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">🖥</div>
+              <div>
+                <div class="io-item-name">KVM-over-IP Switch</div>
+                <div class="io-item-desc">A hardware KVM (Keyboard/Video/Mouse) device in the server rack allows IT Support to access server consoles remotely even when Proxmox is unresponsive. Accessible only from VLAN 99.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="io-col">
+            <div class="io-col-title" style="color:var(--magenta)">🖨 Output Devices</div>
+            <div class="io-item">
+              <div class="io-item-icon">🖨</div>
+              <div>
+                <div class="io-item-name">Network Printers</div>
+                <div class="io-item-desc">Department-shared printers connected via TCP/IP (port 9100 raw or 631 IPP). Assigned static IPs within each department's VLAN. All print jobs route through the network  no local USB printing. Managed via Windows Print Server role on the File Server VM.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">🖥</div>
+              <div>
+                <div class="io-item-name">Employee Monitors</div>
+                <div class="io-item-desc">DisplayPort or HDMI output from employee workstations. Not network-connected  purely local output. Relevant to I/O because the display controller uses DMA to write framebuffer data to the GPU without CPU involvement for each frame.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">🔋</div>
+              <div>
+                <div class="io-item-name">UPS SNMP Output</div>
+                <div class="io-item-desc">The APC Smart-UPS sends SNMP traps to the Prometheus monitoring container when battery power is engaged, power quality degrades, or battery capacity falls below threshold  enabling automatic VM shutdown sequencing before power is exhausted.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">📺</div>
+              <div>
+                <div class="io-item-name">Server Status / iDRAC Console</div>
+                <div class="io-item-desc">Dell iDRAC (Integrated Dell Remote Access Controller) on each server provides out-of-band video output and management even when the OS is unresponsive. Accessible from VLAN 99 Management only.</div>
+              </div>
+            </div>
+            <div class="io-item">
+              <div class="io-item-icon">📞</div>
+              <div>
+                <div class="io-item-name">VoIP Handsets</div>
+                <div class="io-item-desc">SIP-based desk phones connected over the Operations VLAN. PoE-powered directly from the floor access switch. Voice traffic is prioritized using QoS (Quality of Service) DSCP markings at the switch level to ensure call quality under heavy network load.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ 08 I/O CONTROL ══ -->
+      <section class="section" id="io-control">
+        <div class="section-label">
+          <span class="section-num">08</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">I/O Control Mechanisms</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">How the System Controls I/O Traffic</h2>
+
+        <p>Every time a device reads or writes data  from a key press to a 10 GbE packet arriving at a server NIC  the operating system must decide how to handle it. Three fundamental mechanisms govern this: polling, interrupts, and Direct Memory Access (DMA). Each has trade-offs in CPU utilization and latency. (Tanenbaum &amp; Bos, 2015)</p>
+
+        <div class="accordion">
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--cyan);font-family:'JetBrains Mono',monospace">MECH-01</span> Hardware Interrupts  The Primary Mechanism</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>What it is:</strong> A hardware interrupt is a signal sent by a device to the CPU saying "something happened  come deal with it." The CPU stops whatever it was doing, saves its state, and executes an Interrupt Service Routine (ISR)  a small piece of code that handles the event.<br/><br/>
+              <strong>Where it's used in this environment:</strong> Network cards generate an interrupt for every batch of packets received. Keyboard key presses generate interrupts. Disk controllers generate interrupts when a read or write operation completes. The UPS SNMP agent generates a software interrupt (signal) when power status changes.<br/><br/>
+              <strong>Why it's efficient:</strong> The CPU does not need to constantly check ("poll") whether a device has data. It runs other work and only responds when the device actually needs attention. This is why modern servers can handle hundreds of thousands of network events per second while still running VMs at full speed  the CPU is not wasting cycles waiting.<br/><br/>
+              <strong>In virtualized environments:</strong> Proxmox passes hardware interrupts from physical NICs to the specific VM or container that owns that network interface using IOMMU (Input-Output Memory Management Unit) on the Intel CPU. This allows VMs to handle their own network interrupts without routing through the hypervisor for every packet, reducing latency significantly.
+            </div></div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--lime);font-family:'JetBrains Mono',monospace">MECH-02</span> DMA  Direct Memory Access (Critical for Server I/O)</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>What it is:</strong> DMA allows a device controller (NIC, NVMe SSD controller, GPU) to transfer data directly into the computer's RAM without involving the CPU for each byte of data. The CPU initiates the transfer, then steps aside while the DMA controller moves the data autonomously. When the transfer is complete, an interrupt notifies the CPU.<br/><br/>
+              <strong>Why it matters for this deployment:</strong> At 10 GbE speeds, the server NIC can receive 1.25 GB of data every second. Without DMA, the CPU would have to copy every single byte from the NIC to RAM by itself  an impossible workload while simultaneously running VMs. DMA makes 10 GbE (and NVMe SSD reads at 3.5 GB/s) practical on a server that is simultaneously running 6–8 virtual machines.<br/><br/>
+              <strong>NVMe specifically:</strong> The NVMe protocol was designed from the ground up around DMA and parallel queues. Each NVMe SSD can process up to 65,535 simultaneous I/O queues  compared to SATA's single queue  because DMA lets the SSD controller write data to RAM without serializing through the CPU. This is why VM snapshot operations on ZFS NVMe pools complete in seconds rather than minutes.
+            </div></div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:#FF8000;font-family:'JetBrains Mono',monospace">MECH-03</span> Polling  When and Why It Is Used</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>What it is:</strong> Polling is the technique where the CPU periodically checks a device's status register to see if it needs attention. Unlike interrupts, polling keeps the CPU actively involved  it spends clock cycles repeatedly asking "are you done yet?"<br/><br/>
+              <strong>When polling is used in this environment:</strong> The Prometheus monitoring container uses polling  it queries the Proxmox API, SNMP endpoints, and all VM metrics at a configurable interval (default: 15 seconds). This is appropriate here because monitoring data is not time-critical  a 15-second delay in seeing a metric change is acceptable, and interrupt-driven monitoring would generate enormous overhead on every server simultaneously.<br/><br/>
+              <strong>High-performance networking (DPDK):</strong> There is a specific scenario where polling is used for very high-throughput network applications  called kernel-bypass networking (DPDK). In this model, the NIC driver runs entirely in userspace and polls the NIC at full CPU speed, eliminating interrupt latency. This is used in telecommunications and high-frequency trading environments. <strong style="color:var(--text)">IT COMSEE Corp. does not need this</strong>  for 80–120 users and a 10 GbE environment, standard interrupt-driven networking is sufficient and much more CPU-efficient.
+            </div></div>
+          </div>
+
+          <div class="acc-item">
+            <div class="acc-header" onclick="toggleAcc(this)">
+              <div class="acc-title"><span style="color:var(--magenta);font-family:'JetBrains Mono',monospace">MECH-04</span> QoS  Traffic Priority Control</div>
+              <span class="acc-icon">▾</span>
+            </div>
+            <div class="acc-body"><div class="acc-inner">
+              <strong>What it is:</strong> Quality of Service (QoS) is a network-level I/O control mechanism that assigns priority levels to different types of traffic. When a switch or router's output buffer fills up (congestion), lower-priority packets are dropped or delayed while higher-priority packets are forwarded first.<br/><br/>
+              <strong>Where it's applied:</strong> The Cisco access switches and core switch are configured with DSCP (Differentiated Services Code Point) markings. VoIP traffic (Operations VLAN) is marked as high priority  ensuring call quality is maintained even during a large file upload from another workstation on the same floor. Video surveillance streams are marked as medium priority. General file transfers and web browsing receive best-effort (lowest) priority.<br/><br/>
+              <strong>Why this matters:</strong> Without QoS, a single employee uploading a 10 GB file to the shared drive could saturate the floor's 1 GbE uplink to the core switch, making VoIP calls drop for everyone else on that floor. QoS ensures the network behaves predictably under load  which directly supports the organization's goal of reliable network-based services.
+            </div></div>
+          </div>
+        </div>
+
+        <!-- Bandwidth utilization chart -->
+        <h3 class="sub-title" style="margin:2rem 0 0.9rem">Estimated Bandwidth Utilization (Peak Hours)</h3>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">Based on 80–120 concurrent users across three floors. Each floor uplink = 1 Gbps shared. Server backbone = 10 Gbps per link.</p>
+        <div class="highlight-block">
+          <div class="perf-item">
+            <div class="perf-label"><span>Floor Uplink Utilization (each 1 GbE access → core)</span><span>~35%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="35"></div></div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label"><span>Server Backbone (core → each server, 10 GbE)</span><span>~40%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="40"></div></div>
+          </div>
+          <div class="perf-item">
+            <div class="perf-label"><span>NAS Storage Traffic (core → Synology, 10 GbE)</span><span>~30%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="30"></div></div>
+          </div>
+          <div class="perf-item" style="margin-bottom:0">
+            <div class="perf-label"><span>Internet Uplink (firewall → ISP)</span><span>~50%</span></div>
+            <div class="bar-track"><div class="bar-fill" data-w="50"></div></div>
+          </div>
+        </div>
+        <p style="font-size:.73rem;color:var(--muted);margin-top:.6rem">* Estimates based on typical office workloads: file access (SMB), authentication (LDAP), web apps (HTTPS), and scheduled VM backup jobs running off-peak. All links have substantial headroom for growth.</p>
+      </section>
+
+      <!-- ══ REFERENCES ══ -->
+      <section class="section" id="references">
+        <div class="section-label">
+          <span class="section-num">REF</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">References</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">References</h2>
+        <ol class="refs">
+          <li>Tanenbaum, A. S. (2010). <em>Computer Networks (5th ed.).</em> Pearson Education. Chapters 1 (Network Types &amp; Topologies), 4 (Data Link Layer), 5 (Network Layer).</li>
+          <li>Tanenbaum, A. S., &amp; Bos, H. (2015). <em>Modern Operating Systems (4th ed.).</em> Pearson Education. Chapter 5: Input/Output.</li>
+          <li>Cisco Systems. (2023). <em>Catalyst 2960-X Series Switches Datasheet.</em> https://www.cisco.com/c/en/us/products/switches/catalyst-2960-x-series-switches/</li>
+          <li>Cisco Systems. (2023). <em>Enterprise Campus Network Design Guide.</em> https://www.cisco.com/c/en/us/solutions/enterprise/design-zone-campus/</li>
+          <li>Fortinet. (2024). <em>FortiGate 60F Next Generation Firewall Datasheet.</em> https://www.fortinet.com/products/next-generation-firewall/fortigate</li>
+          <li>Ubiquiti Inc. (2024). <em>UniFi AP AC Pro Documentation.</em> https://store.ui.com/products/unifi-ap-ac-pro</li>
+          <li>IEEE. (2018). <em>IEEE Std 802.1Q: Bridges and Bridged Networks (VLAN Standard).</em> https://standards.ieee.org/ieee/802.1Q/</li>
+          <li>IEEE. (2020). <em>IEEE Std 802.11ax: High Efficiency WLAN (Wi-Fi 6).</em> https://standards.ieee.org/ieee/802.11ax/</li>
+          <li>International Organization for Standardization. (1994). <em>ISO/IEC 7498-1: Information technology  Open Systems Interconnection Basic Reference Model.</em></li>
+          <li>IETF. (1981). <em>RFC 791: Internet Protocol (IPv4).</em> https://tools.ietf.org/html/rfc791</li>
+          <li>IETF. (1998). <em>RFC 2460: Internet Protocol, Version 6 (IPv6) Specification.</em> https://tools.ietf.org/html/rfc2460</li>
+          <li>IETF. (1997). <em>RFC 2131: Dynamic Host Configuration Protocol (DHCP).</em> https://tools.ietf.org/html/rfc2131</li>
+          <li>APC by Schneider Electric. (2024). <em>Smart-UPS 1500VA Product Page.</em> https://www.apc.com</li>
+        </ol>
+      </section>
+
+    </main>
+
+    <footer>
+      <span>IT COMSEE Corp. // Infrastructure Proposal · Term 2 AY 2025–2026</span>
+      <span>Part 4: Network &amp; I/O Technology Design &nbsp;|&nbsp; ITCMSY1</span>
+    </footer>
+  </div>
+</div>
+
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+/* TAB SWITCHER */
+function switchTab(btn, id) {
+  const wrap = btn.closest('.section');
+  wrap.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  wrap.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+/* ACCORDION */
+function toggleAcc(header) {
+  const body = header.nextElementSibling;
+  const icon = header.querySelector('.acc-icon');
+  const open = body.classList.contains('open');
+  document.querySelectorAll('.acc-body').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.acc-icon').forEach(i => { i.style.transform = ''; i.style.color = ''; });
+  if (!open) {
+    body.classList.add('open');
+    icon.style.transform = 'rotate(180deg)';
+    icon.style.color = 'var(--cyan)';
+  }
+}
+
+/* SCROLL: PROGRESS + SIDEBAR + BTT */
+const sbls  = document.querySelectorAll('.sbl');
+const sects = document.querySelectorAll('section.section');
+const prog  = document.getElementById('progress');
+const btt   = document.getElementById('btt');
+
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  prog.style.width = Math.min(scrollTop / docH * 100, 100) + '%';
+  btt.classList.toggle('show', scrollTop > 500);
+  let cur = '';
+  sects.forEach(s => { if (s.getBoundingClientRect().top < 130) cur = s.id; });
+  sbls.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+}, { passive: true });
+
+/* ANIMATED COUNTER */
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.t);
+  const dur = 1100; const start = performance.now();
+  (function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(target * e);
+    if (p < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+/* INTERSECTION OBSERVER */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('.bar-fill[data-w]').forEach(b => { b.style.width = b.dataset.w + '%'; });
+    entry.target.querySelectorAll('.ctr[data-t]').forEach(c => { if (c._done) return; c._done = true; animateCounter(c); });
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.section, .hero').forEach(s => io.observe(s));
+</script>
+</body>
+</html>
