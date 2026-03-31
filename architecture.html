@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Processor Architecture — IT COMSEE Corp.</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Oswald:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="ITCMSYstyle.css"/>
+  <style>
+
+    /* ── Comparison Table ── */
+    .cmp-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 1rem; }
+    .cmp-table thead tr { background: var(--bg3); border-bottom: 1px solid rgba(0,255,255,0.25); }
+    .cmp-table th {
+      padding: 0.65rem 1rem; text-align: left;
+      font-family: 'Oswald', sans-serif; font-size: 0.7rem; font-weight: 700;
+      color: var(--cyan); letter-spacing: 0.1em; text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0,255,255,0.3);
+    }
+    .cmp-table th:first-child { color: var(--muted); }
+    .cmp-table td {
+      padding: 0.6rem 1rem; border-bottom: 1px solid rgba(0,255,255,0.06);
+      color: var(--text); vertical-align: middle;
+    }
+    .cmp-table tbody tr:hover td { background: rgba(0,255,255,0.03); }
+    .cmp-table td:first-child {
+      font-family: 'Oswald', sans-serif; font-size: 0.76rem; font-weight: 700;
+      color: var(--heading); text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .tag-cyan {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700;
+      padding: 0.1rem 0.5rem; border: 1px solid rgba(0,255,255,0.4);
+      color: var(--cyan); background: rgba(0,255,255,0.06);
+      text-shadow: 0 0 5px rgba(0,255,255,0.3);
+    }
+    .tag-mag {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700;
+      padding: 0.1rem 0.5rem; border: 1px solid rgba(255,0,255,0.4);
+      color: var(--magenta); background: rgba(255,0,255,0.06);
+      text-shadow: 0 0 5px rgba(255,0,255,0.3);
+    }
+    .tag-lime {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 700;
+      padding: 0.1rem 0.5rem; border: 1px solid rgba(0,255,65,0.4);
+      color: var(--lime); background: rgba(0,255,65,0.06);
+      text-shadow: 0 0 5px rgba(0,255,65,0.3);
+    }
+
+    /* ── CPU Spec Cards ── */
+    .cpu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px,1fr)); gap: 1.2rem; margin-top: 1.2rem; }
+    .cpu-card {
+      background: var(--bg2);
+      border: 1px solid rgba(0,255,255,0.1);
+      border-top: 2px solid var(--cpu-color, var(--cyan));
+      padding: 1.4rem; position: relative; overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .cpu-card:hover {
+      border-color: var(--cpu-color, rgba(0,255,255,0.4));
+      box-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 1px var(--cpu-color, var(--cyan));
+    }
+    .cpu-card::after {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 0; height: 0;
+      border-top: 12px solid var(--cpu-color, var(--cyan));
+      border-left: 12px solid transparent;
+      opacity: 0.5;
+    }
+    .cpu-badge {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 700;
+      color: var(--cpu-color, var(--cyan)); letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 0.3rem; text-shadow: 0 0 6px currentColor;
+    }
+    .cpu-name {
+      font-family: 'Oswald', sans-serif; font-size: 1.05rem; font-weight: 700;
+      color: var(--heading); text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 0.15rem;
+    }
+    .cpu-arch { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.9rem; }
+    .cpu-specs { display: flex; flex-direction: column; gap: 0; }
+    .cpu-spec-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      padding: 0.38rem 0;
+      border-bottom: 1px solid rgba(0,255,255,0.05);
+      font-size: 0.76rem;
+    }
+    .cpu-spec-row:last-child { border-bottom: none; }
+    .cpu-spec-key { color: var(--muted); }
+    .cpu-spec-val { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+    .cpu-price {
+      margin-top: 0.9rem; padding-top: 0.7rem;
+      border-top: 1px solid rgba(0,255,255,0.1);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+      color: var(--lime); text-shadow: 0 0 5px rgba(0,255,65,0.35);
+    }
+    .cpu-desc {
+      margin-top: 0.6rem; font-size: 0.76rem; color: var(--muted);
+      line-height: 1.55; font-style: italic;
+    }
+
+    /* ── Metric Recommendation Cards ── */
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr)); gap: 1rem; margin-top: 1.2rem; }
+    .metric-card {
+      background: var(--bg3); border: 1px solid rgba(0,255,255,0.1); border-radius: 0;
+      padding: 1.2rem; transition: border-color .18s, box-shadow .18s;
+      border-left: 3px solid var(--m-color, var(--cyan));
+    }
+    .metric-card:hover { border-color: rgba(0,255,255,0.3); box-shadow: 0 0 12px rgba(0,255,255,0.04); }
+    .metric-label {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700;
+      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.3rem;
+    }
+    .metric-label::before { content: '> '; color: var(--m-color, var(--cyan-dim)); }
+    .metric-value {
+      font-family: 'Oswald', sans-serif; font-size: 1.15rem; font-weight: 700;
+      color: var(--m-color, var(--cyan)); text-transform: uppercase; letter-spacing: 0.03em;
+      text-shadow: 0 0 8px currentColor; margin-bottom: 0.2rem;
+    }
+    .metric-note { font-size: 0.72rem; color: var(--muted); line-height: 1.5; }
+    .bullet-list { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; margin-top: 0.5rem; }
+    .bullet-list li { font-size: 0.77rem; color: var(--muted); display: flex; gap: 0.45rem; }
+    .bullet-list li::before { content: '—'; color: var(--cyan-dim); flex-shrink: 0; }
+
+    /* ── Cluster deploy card ── */
+    .deploy-box {
+      background: linear-gradient(135deg, rgba(0,255,255,0.03), rgba(0,128,255,0.02));
+      border: 1px solid rgba(0,255,255,0.18); border-left: 3px solid var(--cyan);
+      padding: 1.3rem 1.6rem; margin-top: 1.2rem;
+    }
+    .deploy-box h4 {
+      font-family: 'Oswald', sans-serif; font-size: 0.82rem; font-weight: 700;
+      color: var(--cyan); text-transform: uppercase; letter-spacing: 0.12em;
+      margin-bottom: 0.6rem; text-shadow: 0 0 6px rgba(0,255,255,0.4);
+    }
+    .deploy-specs { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 0.5rem 1.5rem; margin-bottom: 0.7rem; }
+    .deploy-spec { font-size: 0.78rem; color: var(--muted); }
+    .deploy-spec strong { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; }
+
+    @media(max-width:700px){
+      .cpu-grid { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: 1fr; }
+      .deploy-specs { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ PROGRESS BAR ═══ -->
+<div id="progress" style="position:fixed;top:0;left:0;height:2px;background:var(--cyan);box-shadow:var(--glow-cyan);width:0;z-index:9999;transition:width .1s linear;pointer-events:none;"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="topnav">
+  <div class="nav-logo">IT COMSEE Corp.</div>
+  <div class="nav-links">
+    <a href="index.html">Overview</a>
+    <a href="architecture.html" class="active">Architecture</a>
+    <a href="storage.html">Storage</a>
+    <a href="network.html">Network</a>
+    <a href="virtualization.html">Virtualization</a>
+    <a href="performance.html">Performance</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-label">On This Page</div>
+    <a href="#intro"       class="sbl active"><span class="dot"></span>Introduction</a>
+    <a href="#isa"         class="sbl"><span class="dot"></span>ISA Comparison</a>
+    <a href="#cisc-risc"   class="sbl"><span class="dot"></span>CISC vs RISC</a>
+    <a href="#performance" class="sbl"><span class="dot"></span>Performance Metrics</a>
+    <a href="#models"      class="sbl"><span class="dot"></span>CPU Models</a>
+    <a href="#deployment"  class="sbl"><span class="dot"></span>Deployment</a>
+    <a href="#references"  class="sbl"><span class="dot"></span>References</a>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div>
+    <main class="main-content">
+
+      <!-- ══ HERO ══ -->
+      <div class="hero" id="hero">
+        <div class="hero-eyebrow">
+          <span class="hero-tag">Part 2</span>
+          <span class="hero-tag" style="color:var(--magenta);border-color:rgba(255,0,255,0.3)">Processor Architecture</span>
+        </div>
+        <h1 class="hero-title">To Armor<br/>Your Core</h1>
+        <p class="hero-sub">The Best Processor Architecture for Your Company</p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="stat-val"><span class="ctr" data-t="32">0</span></div>
+            <div class="stat-lbl">Max Cores / CPU</div>
+          </div>
+          <div class="hero-stat">
+            <div class="stat-val"><span class="ctr" data-t="3">0</span></div>
+            <div class="stat-lbl">Server Nodes</div>
+          </div>
+          <div class="hero-stat">
+            <div class="stat-val">64<span style="font-size:.9rem">-bit</span></div>
+            <div class="stat-lbl">Word Size</div>
+          </div>
+          <div class="hero-stat">
+            <div class="stat-val">x86</div>
+            <div class="stat-lbl">ISA Standard</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ INTRODUCTION ══ -->
+      <section class="section" id="intro">
+        <div class="section-label">
+          <span class="section-num">01</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Introduction</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Processor Architecture:<br/>What this means for the company</h2>
+        <p>In order for a company like IT COMSEE Corp. to serve its clients better, its IT infrastructure must grow alongside its rapid modernization programs. This involves upgrades and overhauls in the overall systems that keep IT COMSEE Corp's technologies connected, secured, and functional.</p>
+        <p style="margin-top:.9rem">To achieve this, IT COMSEE Corp. requires a reliable data center that employees and members can use as a centralized data storage, workplace, and network that keeps things secured and connected in one place.</p>
+        <p style="margin-top:.9rem">This would come in the form of server racks, NAS (network attached storage), switches, and interconnected office computers that work together to fulfill the company's responsibilities. But, in the heart of it all lies a small yet powerful technology that powers every bit of hardware in the building— the CPU.</p>
+        <p style="margin-top:.9rem">As we go over each component of IT COMSEE Corp's future mid-sized enterprise data center, let us begin with the basics of processor technology— and why our specifications would serve excellently for IT COMSEE Corp's needs.</p>
+      </section>
+
+      <!-- ══ ISA COMPARISON ══ -->
+      <section class="section" id="isa">
+        <div class="section-label">
+          <span class="section-num">02</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">ISA Comparison</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">In the field of technology, two ISAs dominate the market</h2>
+        <p>In the field of technology, two ISAs (Instruction Set Architectures) dominate the market: <strong style="color:var(--cyan)">x86</strong>, a CISC (Complex Instruction Set Computing) architecture developed by Intel and AMD, and <strong style="color:var(--magenta)">ARM</strong>, a RISC (Reduced Instruction Set Computing) architecture developed by Arm Holdings. It is important to know their differences in choosing the right processor for IT COMSEE Corp.</p>
+
+        <table class="cmp-table" style="margin-top:1.3rem">
+          <thead>
+            <tr>
+              <th>Specs</th>
+              <th style="color:var(--cyan)">x86</th>
+              <th style="color:var(--magenta)">ARM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Instruction Model</td>
+              <td><span class="tag-cyan">CISC-based</span></td>
+              <td><span class="tag-mag">RISC-based</span></td>
+            </tr>
+            <tr>
+              <td>Enterprise Server Adoption</td>
+              <td>Common and reliable</td>
+              <td>Rare</td>
+            </tr>
+            <tr>
+              <td>Software Compatibility</td>
+              <td>Extensive</td>
+              <td>Improving</td>
+            </tr>
+            <tr>
+              <td>Virtualization Support</td>
+              <td>Mature</td>
+              <td>Developing</td>
+            </tr>
+            <tr>
+              <td>Power Efficiency</td>
+              <td>Moderate</td>
+              <td><span class="tag-lime">High</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="highlight-block" style="margin-top:1.4rem">
+          <p>For enterprise servers, many companies choose <strong style="color:var(--cyan)">x86</strong> for its industry-standard capabilities, as well as its ability to support operating systems, virtualization, and other forms of software tools. Through processors that run on x86 architectures, IT systems are easily deployed and maintained worldwide.</p>
+          <p style="margin-top:.8rem">ARM processors are known for excellent power efficiency, hence its popularity for mobile devices and cloud platforms. However, x86 proves to be more trusted when it comes to enterprise software and virtualization.</p>
+          <p style="margin-top:.8rem">For IT COMSEE Corp, which requires stable virtualization and enterprise software compatibility, the CISC-based x86 provides a safer and more reliable choice <span style="color:var(--muted);font-size:.78rem">(Hennessy &amp; Patterson, 2019)</span>.</p>
+        </div>
+      </section>
+
+      <!-- ══ CISC vs RISC ══ -->
+      <section class="section" id="cisc-risc">
+        <div class="section-label">
+          <span class="section-num">03</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">CISC vs RISC</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">But what exactly is CISC and RISC?</h2>
+        <p>It's simple— as CPUs process instructions, it computes based on how it is designed.</p>
+
+        <table class="cmp-table" style="margin-top:1.3rem">
+          <thead>
+            <tr>
+              <th>Specs</th>
+              <th style="color:var(--cyan)">CISC</th>
+              <th style="color:var(--magenta)">RISC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Instruction Complexity</td>
+              <td>Complex instructions</td>
+              <td>Simple instructions</td>
+            </tr>
+            <tr>
+              <td>Hardware Complexity</td>
+              <td>Even more complex</td>
+              <td>Much simpler</td>
+            </tr>
+            <tr>
+              <td>Power Efficiency</td>
+              <td>Moderate</td>
+              <td><span class="tag-lime">Higher</span></td>
+            </tr>
+            <tr>
+              <td>Execution Style</td>
+              <td>Fewer instructions per task</td>
+              <td>More instructions per task</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin-top:1.2rem"><strong style="color:var(--magenta)">RISC</strong> stands for Reduced Instruction Set Computing. Its whole design relies on using simple instructions to execute as fast as possible. <strong style="color:var(--cyan)">CISC</strong>, on the other hand, is the opposite— it can handle complex instructions capable of performing multiple operations, albeit with more time and power.</p>
+        <p style="margin-top:.9rem">But as technology evolves, the true capabilities of a CPU now stand on many other factors such as core count, clock speed, and memory bandwidth <span style="color:var(--muted);font-size:.78rem">(Stallings, 2021)</span>.</p>
+      </section>
+
+      <!-- ══ PERFORMANCE METRICS ══ -->
+      <section class="section" id="performance">
+        <div class="section-label">
+          <span class="section-num">04</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Performance Metrics</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">How we'll measure your CPU's performance</h2>
+
+        <!-- Core Count -->
+        <h3 class="sub-title" style="margin:1.8rem 0 .6rem">Core Count</h3>
+        <p>In simpler terms, a CPU's "core" refers to a smaller unit within the processor where instructions are being processed. More cores, more brains.</p>
+        <p style="margin-top:.8rem">This is highly important in situations where virtual machines and containers are being used, just like in IT COMSEE Corp's IT infrastructure. Each of these VMs would be handling a large number of instructions, which would require more cores to process.</p>
+        <p style="margin-top:.8rem">Based on the company's workload and system requirements, we recommend: <strong style="color:var(--cyan)">16–32 cores per server</strong>.</p>
+
+        <div class="metric-grid">
+          <div class="metric-card" style="--m-color:var(--cyan)">
+            <div class="metric-label">Recommendation</div>
+            <div class="metric-value">16–32 Cores</div>
+            <div class="metric-note">Per server — balanced for cost and virtualization headroom.</div>
+          </div>
+          <div class="metric-card" style="--m-color:var(--lime);grid-column:span 2">
+            <div class="metric-label">What this enables</div>
+            <div class="metric-value" style="font-size:.85rem;letter-spacing:.04em">Multi-VM Capability</div>
+            <ul class="bullet-list">
+              <li>Support several VMs simultaneously</li>
+              <li>Implement authentication services for security</li>
+              <li>Easily share files across the workplace</li>
+              <li>Run networks simultaneously and efficiently</li>
+            </ul>
+            <p style="font-size:.72rem;color:var(--muted);margin-top:.6rem">Proven and tested, industry best practices suggest prioritizing core scalability over extremely high clock speeds for virtualization-heavy environments <span style="color:var(--muted)">(VMware, 2023)</span>.</p>
+          </div>
+        </div>
+
+        <!-- Clock Speed -->
+        <h3 class="sub-title" style="margin:2rem 0 .6rem">Clock Speed</h3>
+        <p>And speaking of clock speeds, we move on to the rate in which our CPU processes instructions.</p>
+        <p style="margin-top:.8rem">Clock speed determines how fast individual instructions are executed. Higher clock speeds mean better directory services, faster file indexing, and easier admin operations.</p>
+        <p style="margin-top:.8rem">While enterprise systems prioritize cores for scalability over high clock speeds, this specification would still matter when it comes to time and efficiency.</p>
+
+        <div class="metric-grid" style="margin-top:1rem">
+          <div class="metric-card" style="--m-color:var(--magenta)">
+            <div class="metric-label">Recommendation</div>
+            <div class="metric-value">2.4–3.2 GHz</div>
+            <div class="metric-note">Base clock target per CPU — efficient for enterprise workloads.</div>
+          </div>
+          <div class="metric-card" style="--m-color:var(--cyan)">
+            <div class="metric-label">Benefits</div>
+            <div class="metric-value" style="font-size:.85rem">Admin Ops</div>
+            <ul class="bullet-list">
+              <li>Better directory services</li>
+              <li>Faster file indexing</li>
+              <li>Easier admin operations</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Word Size -->
+        <h3 class="sub-title" style="margin:2rem 0 .6rem">Word Size</h3>
+        <p>This specification concerns memory, down to its bits.</p>
+        <p style="margin-top:.8rem">When technology advances, older versions tend to be replaced as standards continue to rise. Because of this, systems that run on 32-bit architecture tend to fall under these standards, hence why we discourage them for IT COMSEE Corp.</p>
+        <p style="margin-top:.8rem">Our proposed IT Infrastructure would require <strong style="color:var(--cyan)">64-bit processors</strong> which would allow:</p>
+
+        <div class="metric-grid" style="margin-top:1rem">
+          <div class="metric-card" style="--m-color:var(--cyan)">
+            <div class="metric-label">Memory Access</div>
+            <div class="metric-value">4 GB+</div>
+            <div class="metric-note">Access to larger memory capacities (up to 4 gigabytes and beyond)</div>
+          </div>
+          <div class="metric-card" style="--m-color:var(--lime)">
+            <div class="metric-label">Virtualization</div>
+            <div class="metric-value">Full</div>
+            <div class="metric-note">Better virtualization support for modern hypervisors</div>
+          </div>
+          <div class="metric-card" style="--m-color:var(--magenta)">
+            <div class="metric-label">Security</div>
+            <div class="metric-value">Improved</div>
+            <div class="metric-note">Improved security features and modern OS compatibility</div>
+          </div>
+        </div>
+
+        <div class="highlight-block" style="margin-top:1.4rem">
+          <p>All in all, the specifications we have provided would equip IT COMSEE Corp. with a cost-effective yet high-performance IT system that would reliably meet client/employee demands and exceed industry standards.</p>
+        </div>
+      </section>
+
+      <!-- ══ CPU MODELS ══ -->
+      <section class="section" id="models">
+        <div class="section-label">
+          <span class="section-num">05</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">CPU Models</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Are there CPU models that fit these specs?</h2>
+        <p>Absolutely.</p>
+        <p style="margin-top:.6rem">Allocating <strong style="color:var(--lime)">3,000,000 PHP</strong> for the systems' processors, we found these enterprise processors to be fitting for IT COMSEE Corp's needs.</p>
+
+        <div class="cpu-grid">
+
+          <!-- Intel Xeon Silver 4314 -->
+          <div class="cpu-card" style="--cpu-color:var(--cyan)">
+            <div class="cpu-badge">Intel · Go-To Unit</div>
+            <div class="cpu-name">Xeon Silver 4314</div>
+            <div class="cpu-arch">Ice Lake-SP (3rd Gen Xeon Scalable)</div>
+            <div class="cpu-specs">
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Cores / Threads</span>
+                <span class="cpu-spec-val">16 / 32</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Base Clock</span>
+                <span class="cpu-spec-val">2.4 GHz</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Max Turbo</span>
+                <span class="cpu-spec-val">3.4 GHz</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">L3 Cache</span>
+                <span class="cpu-spec-val">24 MB</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Memory Support</span>
+                <span class="cpu-spec-val">8ch DDR4-2667</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">PCIe Support</span>
+                <span class="cpu-spec-val">PCIe 4.0 (64 lanes)</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Socket Support</span>
+                <span class="cpu-spec-val">Up to 2 CPUs</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">TDP</span>
+                <span class="cpu-spec-val">135W</span>
+              </div>
+            </div>
+            <div class="cpu-price">Est. 50,000 – 75,000 PHP per CPU</div>
+            <div class="cpu-desc">This is the company's go-to unit for a reliable, balanced system for everyday needs— virtualization, databases, and software.</div>
+          </div>
+
+          <!-- AMD EPYC 7313P -->
+          <div class="cpu-card" style="--cpu-color:var(--magenta)">
+            <div class="cpu-badge">AMD · Centralized Option</div>
+            <div class="cpu-name">EPYC 7313P</div>
+            <div class="cpu-arch">Zen 3 (EPYC 7003 "Milan")</div>
+            <div class="cpu-specs">
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Cores / Threads</span>
+                <span class="cpu-spec-val">16 / 32</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Base Clock</span>
+                <span class="cpu-spec-val">3.0 GHz</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Max Turbo</span>
+                <span class="cpu-spec-val">3.7 GHz</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">L3 Cache</span>
+                <span class="cpu-spec-val">128 MB</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Memory Support</span>
+                <span class="cpu-spec-val">8ch DDR4-3200</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">PCIe Support</span>
+                <span class="cpu-spec-val">PCIe 4.0 (128 lanes)</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Socket Support</span>
+                <span class="cpu-spec-val">Single-socket only</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">TDP</span>
+                <span class="cpu-spec-val">155W</span>
+              </div>
+            </div>
+            <div class="cpu-price" style="color:var(--magenta);text-shadow:0 0 5px rgba(255,0,255,0.35)">Est. 45,000 – 70,000 PHP per CPU</div>
+            <div class="cpu-desc">This is a viable option for IT COMSEE Corp. should they need a powerful, centralized setup with strong performance in virtualization, storage, and cloud services.</div>
+          </div>
+
+          <!-- Intel Xeon Gold 5318Y -->
+          <div class="cpu-card" style="--cpu-color:var(--lime)">
+            <div class="cpu-badge">Intel · Scalability Key</div>
+            <div class="cpu-name">Xeon Gold 5318Y</div>
+            <div class="cpu-arch">Ice Lake-SP (3rd Gen Xeon Scalable)</div>
+            <div class="cpu-specs">
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Cores / Threads</span>
+                <span class="cpu-spec-val">24 / 48</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Base Clock</span>
+                <span class="cpu-spec-val">2.1 GHz</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Max Turbo</span>
+                <span class="cpu-spec-val">3.4 GHz</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">L3 Cache</span>
+                <span class="cpu-spec-val">36 MB</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Memory Support</span>
+                <span class="cpu-spec-val">8ch DDR4-2933</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">PCIe Support</span>
+                <span class="cpu-spec-val">PCIe 4.0 (64 lanes)</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">Socket Support</span>
+                <span class="cpu-spec-val">Up to 2 CPUs</span>
+              </div>
+              <div class="cpu-spec-row">
+                <span class="cpu-spec-key">TDP</span>
+                <span class="cpu-spec-val">165W</span>
+              </div>
+            </div>
+            <div class="cpu-price" style="color:var(--lime);text-shadow:0 0 5px rgba(0,255,65,0.35)">Est. 90,000 – 120,000 PHP per CPU</div>
+            <div class="cpu-desc">This is the key unit for IT COMSEE Corp's VM and scalability needs, offering higher server performance.</div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ══ DEPLOYMENT ══ -->
+      <section class="section" id="deployment">
+        <div class="section-label">
+          <span class="section-num">06</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Deployment</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">How these would be used</h2>
+        <p>Fitting within <strong style="color:var(--lime)">3,000,000 PHP</strong>, these specs shall be deployed through three enterprise rack-mounted servers that include:</p>
+
+        <div class="deploy-box">
+          <h4>Three-Node Compute Cluster</h4>
+          <div class="deploy-specs">
+            <div class="deploy-spec">Powerful <strong>x86 processors</strong></div>
+            <div class="deploy-spec"><strong>16–24 cores</strong> per processor</div>
+            <div class="deploy-spec"><strong>128–256 GB</strong> memory</div>
+            <div class="deploy-spec"><strong>Hardware</strong> virtualization support</div>
+            <div class="deploy-spec"><strong>Typical</strong> power supplies</div>
+          </div>
+          <p style="font-size:.8rem;color:var(--muted)">Creating a three-node compute cluster, this will allow the system to distribute workloads accordingly.</p>
+        </div>
+
+        <div class="highlight-block" style="margin-top:1.4rem">
+          <p>We at IT Systems Consultants believe that, to meet IT COMSEE Corp's excellence, their future infrastructure must catch up to standards. Therefore, by equipping the company with reliable, trustworthy IT systems, we aim to build a robust network that can keep up with the industry's demands.</p>
+          <p style="margin-top:.8rem;font-family:'Oswald',sans-serif;font-size:1rem;font-weight:700;color:var(--cyan);text-shadow:var(--glow-cyan);letter-spacing:.06em">Say hello to the future.</p>
+        </div>
+      </section>
+
+      <!-- ══ REFERENCES ══ -->
+      <section class="section" id="references">
+        <div class="section-label">
+          <span class="section-num">REF</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">References</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">References</h2>
+        <ol class="refs">
+          <li>Hennessy, J., &amp; Patterson, D. (2019). <em>Computer Architecture: A Quantitative Approach (6th ed.).</em> Morgan Kaufmann.</li>
+          <li>Stallings, W. (2021). <em>Computer Organization and Architecture: Designing for Performance (11th ed.).</em> Pearson.</li>
+          <li>VMware. (2023). <em>Best Practices for Performance Tuning of Virtual Machines.</em> VMware Documentation.</li>
+          <li>AMD. (2023). <em>AMD EPYC Processor Product Specifications.</em> AMD Official Documentation.</li>
+          <li>Intel. (2023). <em>Intel Xeon Scalable Processor Family Overview.</em> Intel Developer Documentation.</li>
+        </ol>
+      </section>
+
+    </main>
+
+    <footer>
+      <span>IT COMSEE Corp. // Infrastructure Proposal · Term 2 AY 2025–2026</span>
+      <span>Part 2: Processor Architecture &nbsp;|&nbsp; ITCMSY1</span>
+    </footer>
+  </div>
+</div>
+
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+/* SCROLL: PROGRESS + SIDEBAR + BTT */
+const sbls  = document.querySelectorAll('.sbl');
+const sects = document.querySelectorAll('section.section');
+const prog  = document.getElementById('progress');
+const btt   = document.getElementById('btt');
+
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  prog.style.width = Math.min(scrollTop / docH * 100, 100) + '%';
+  btt.classList.toggle('show', scrollTop > 500);
+  let cur = '';
+  sects.forEach(s => { if (s.getBoundingClientRect().top < 130) cur = s.id; });
+  sbls.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+}, { passive: true });
+
+/* ANIMATED COUNTER */
+function animateCounter(el) {
+  const target = parseFloat(el.dataset.t);
+  const dur = 1100; const start = performance.now();
+  (function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(target * e);
+    if (p < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+/* INTERSECTION OBSERVER */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('.ctr[data-t]').forEach(c => { if (c._done) return; c._done = true; animateCounter(c); });
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.section, .hero').forEach(s => io.observe(s));
+</script>
+</body>
+</html>

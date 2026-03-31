@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Overview — IT COMSEE Corp. Infrastructure Proposal</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Oswald:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="ITCMSYstyle.css"/>
+  <style>
+
+    /* ── Page-nav cards ── */
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.1rem;
+      margin-top: 1.3rem;
+    }
+    .page-card {
+      background: var(--bg2);
+      border: 1px solid rgba(0,255,255,0.1);
+      border-top: 2px solid var(--pc-color, var(--cyan));
+      padding: 1.4rem;
+      position: relative;
+      overflow: hidden;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+      text-decoration: none;
+      display: block;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .page-card:hover {
+      border-color: var(--pc-color, rgba(0,255,255,0.4));
+      box-shadow: 0 0 24px rgba(0,0,0,0.5), 0 0 2px var(--pc-color, var(--cyan));
+      transform: translateY(-3px);
+    }
+    .page-card::after {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 0; height: 0;
+      border-top: 12px solid var(--pc-color, var(--cyan));
+      border-left: 12px solid transparent;
+      opacity: 0.5;
+    }
+    .page-card-part {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; font-weight: 700;
+      color: var(--pc-color, var(--cyan));
+      letter-spacing: 0.14em; text-transform: uppercase;
+      margin-bottom: 0.3rem;
+      text-shadow: 0 0 6px currentColor;
+    }
+    .page-card-title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--heading); text-transform: uppercase;
+      letter-spacing: 0.04em; margin-bottom: 0.5rem;
+    }
+    .page-card-desc {
+      font-size: 0.75rem; color: var(--muted); line-height: 1.55;
+    }
+    .page-card-author {
+      margin-top: 0.9rem; padding-top: 0.7rem;
+      border-top: 1px solid rgba(0,255,255,0.08);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; color: var(--muted);
+    }
+    .page-card-author span {
+      color: var(--pc-color, var(--cyan));
+      font-weight: 700;
+    }
+    .page-card-arrow {
+      position: absolute; bottom: 1.2rem; right: 1.2rem;
+      font-size: 0.8rem; color: var(--pc-color, var(--cyan));
+      opacity: 0; transition: opacity .2s, transform .2s;
+    }
+    .page-card:hover .page-card-arrow {
+      opacity: 1; transform: translateX(3px);
+    }
+    .status-chip {
+      display: inline-block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.58rem; font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border: 1px solid currentColor;
+      text-transform: uppercase; letter-spacing: .08em;
+      margin-left: 0.5rem; vertical-align: middle;
+    }
+    .status-live   { color: var(--lime);    border-color: rgba(0,255,65,.4);    background: rgba(0,255,65,.06);  text-shadow: 0 0 5px rgba(0,255,65,.4); }
+    .status-wip    { color: #FF8000;        border-color: rgba(255,128,0,.4);   background: rgba(255,128,0,.08); text-shadow: 0 0 5px rgba(255,128,0,.5); }
+
+    /* ── Team cards ── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+    .member-card {
+      background: var(--bg3);
+      border: 1px solid rgba(0,255,255,0.1);
+      border-radius: 0;
+      padding: 1.3rem;
+      position: relative;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .member-card:hover {
+      border-color: rgba(0,255,255,0.3);
+      box-shadow: 0 0 14px rgba(0,255,255,0.05);
+    }
+    .member-avatar {
+      width: 44px; height: 44px;
+      background: var(--bg4);
+      border: 1px solid rgba(0,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Oswald', sans-serif;
+      font-size: 1rem; font-weight: 700;
+      color: var(--av-color, var(--cyan));
+      text-shadow: 0 0 8px currentColor;
+      margin-bottom: 0.8rem;
+      clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    }
+    .member-name {
+      font-family: 'Oswald', sans-serif;
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--heading); text-transform: uppercase;
+      letter-spacing: 0.04em; margin-bottom: 0.15rem;
+    }
+    .member-role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem; font-weight: 700;
+      color: var(--av-color, var(--cyan));
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+      text-shadow: 0 0 5px currentColor;
+    }
+    .member-pages {
+      font-size: 0.72rem; color: var(--muted); line-height: 1.55;
+    }
+    .member-pages strong { color: var(--text); }
+
+    /* ── Requirements checklist ── */
+    .req-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .req-item {
+      display: flex; gap: 0.55rem; align-items: flex-start;
+      font-size: 0.78rem; color: var(--muted);
+      padding: 0.45rem 0.7rem;
+      background: var(--bg3);
+      border: 1px solid rgba(0,255,255,0.06);
+    }
+    .req-item.done { color: var(--text); border-color: rgba(0,255,65,0.15); }
+    .req-item.done::before { content: '✔'; color: var(--lime); flex-shrink: 0; text-shadow: 0 0 4px rgba(0,255,65,.5); font-weight: 700; }
+    .req-item.pending::before { content: '◌'; color: #FF8000; flex-shrink: 0; }
+
+    /* ── Budget bar ── */
+    .budget-rows { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+    .brow { display: flex; flex-direction: column; gap: 0.25rem; }
+    .brow-label { display: flex; justify-content: space-between; font-size: 0.76rem; }
+    .brow-name { color: var(--text); }
+    .brow-val  { font-family: 'JetBrains Mono', monospace; color: var(--cyan); font-size: 0.72rem; text-shadow: 0 0 5px rgba(0,255,255,.35); }
+    .brow-track { height: 4px; background: var(--bg4); width: 100%; }
+    .brow-fill  { height: 4px; background: var(--b-color, var(--cyan)); box-shadow: 0 0 6px var(--b-color, var(--cyan)); width: 0; transition: width 1.1s cubic-bezier(.22,.61,.36,1); }
+
+    /* ── Constraint tags ── */
+    .constraint-row { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 0.9rem; }
+    .ctag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem; font-weight: 700;
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--ct-color, rgba(0,255,255,0.3));
+      color: var(--ct-color, var(--cyan));
+      background: rgba(0,255,255,0.04);
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+
+    @media(max-width:700px) {
+      .pages-grid { grid-template-columns: 1fr; }
+      .team-grid  { grid-template-columns: 1fr 1fr; }
+      .req-grid   { grid-template-columns: 1fr; }
+    }
+    @media(max-width:460px) {
+      .team-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ PROGRESS BAR ═══ -->
+<div id="prog-bar" style="position:fixed;top:0;left:0;height:2px;background:var(--cyan);box-shadow:var(--glow-cyan);width:0;z-index:9999;transition:width .1s linear;pointer-events:none;"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="topnav">
+  <div class="nav-logo">IT COMSEE Corp.</div>
+  <div class="nav-links">
+    <a href="index.html" class="active">Overview</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="storage.html">Storage</a>
+    <a href="network.html">Network</a>
+    <a href="virtualization.html">Virtualization</a>
+    <a href="performance.html">Performance</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar">
+    <div class="sidebar-label">On This Page</div>
+    <a href="#about"       class="sbl active"><span class="dot"></span>About This Project</a>
+    <a href="#team"        class="sbl"><span class="dot"></span>Our Team</a>
+    <a href="#profile"     class="sbl"><span class="dot"></span>Organization Profile</a>
+    <a href="#requirements"class="sbl"><span class="dot"></span>System Requirements</a>
+    <a href="#constraints" class="sbl"><span class="dot"></span>Constraints</a>
+    <a href="#budget"      class="sbl"><span class="dot"></span>Budget Allocation</a>
+    <a href="#pages"       class="sbl"><span class="dot"></span>Site Pages</a>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+      <div class="progress-label">Reading progress</div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div>
+    <main class="main-content">
+
+      <!-- ══ HERO ══ -->
+      <header class="hero">
+        <div class="page-tag">ITCMSY1 · Term 2 AY 2025–2026 · Group 7</div>
+        <h1 class="hero-title">IT COMSEE Corp.<br/><span>Infrastructure Proposal</span></h1>
+        <p class="hero-sub">
+          A comprehensive computing platform proposal designed by IT Systems Consultants —
+          covering processor architecture, storage, networking, virtualization, and performance
+          evaluation for a mid-sized enterprise of 80–120 employees.
+        </p>
+        <div class="author-badge">by <strong>Group 7</strong> &nbsp;·&nbsp; ITCMSY1</div>
+        <div class="hero-stats">
+          <div class="stat-chip">
+            <div class="sc-val">₱10M</div>
+            <div class="sc-lbl">Total Budget</div>
+            <div class="sc-tip">PhP 10,000,000 total project budget distributed across hardware, software, networking, virtualization, and implementation costs.</div>
+          </div>
+          <div class="stat-chip">
+            <div class="sc-val"><span class="ctr" data-t="120">0</span></div>
+            <div class="sc-lbl">Max Employees</div>
+            <div class="sc-tip">IT COMSEE Corp. currently employs 80–120 staff across Administration, Operations, and IT Support departments.</div>
+          </div>
+          <div class="stat-chip">
+            <div class="sc-val"><span class="ctr" data-t="6">0</span></div>
+            <div class="sc-lbl">Site Pages</div>
+            <div class="sc-tip">Overview, Architecture, Storage, Network, Virtualization, and Performance — one page per proposal section.</div>
+          </div>
+          <div class="stat-chip">
+            <div class="sc-val"><span class="ctr" data-t="3">0</span></div>
+            <div class="sc-lbl">Departments</div>
+            <div class="sc-tip">Administration, Operations, and IT Support — each with distinct access requirements and network segmentation.</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ══ ABOUT ══ -->
+      <section class="section" id="about">
+        <div class="section-label">
+          <span class="section-num">01</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">About This Project</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Case Background</h2>
+        <p>IT COMSEE Corp. is a mid-sized organization undergoing rapid growth, planning to modernize its IT infrastructure to support its expanding operations. The organization requires a reliable, secure, and scalable computing platform that can handle the demands of a growing workforce.</p>
+        <p style="margin-top:.9rem">The management has tasked our team — <strong style="color:var(--cyan)">IT Systems Consultants, Group 7</strong> — to analyze, evaluate, and recommend an appropriate computing platform based on technical, performance, and cost considerations. The total budget for the project is <strong style="color:var(--lime)">PhP 10,000,000</strong>.</p>
+        <p style="margin-top:.9rem">This proposal covers six key areas: processor architecture, data storage design, network and I/O technology, virtualization strategy, and performance evaluation — each presented as a dedicated section of this website.</p>
+      </section>
+
+      <!-- ══ TEAM ══ -->
+      <section class="section" id="team">
+        <div class="section-label">
+          <span class="section-num">02</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">The Team</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Group 7 — IT Systems Consultants</h2>
+        <p>Four members. Each responsible for researching, writing, and building their assigned sections of this proposal.</p>
+
+        <div class="team-grid">
+
+          <div class="member-card" style="border-top:2px solid var(--cyan);--av-color:var(--cyan)">
+            <div class="member-avatar">M1</div>
+            <div class="member-name">[ Member 1 ]</div>
+            <div class="member-role">Lead Architect</div>
+            <div class="member-pages">
+              Responsible for:<br/>
+              <strong>Overview Page</strong> &amp; <strong>Architecture Page</strong><br/>
+              Processor comparison, ISA analysis, CPU recommendations.
+            </div>
+          </div>
+
+          <div class="member-card" style="border-top:2px solid var(--magenta);--av-color:var(--magenta)">
+            <div class="member-avatar" style="border-color:rgba(255,0,255,0.3)">M2</div>
+            <div class="member-name">[ Member 2 ]</div>
+            <div class="member-role">Storage Engineer</div>
+            <div class="member-pages">
+              Responsible for:<br/>
+              <strong>Storage Design Page</strong><br/>
+              RAM, SSD/HDD selection, OS choice, backup &amp; recovery, fault tolerance.
+            </div>
+          </div>
+
+          <div class="member-card" style="border-top:2px solid var(--lime);--av-color:var(--lime)">
+            <div class="member-avatar" style="border-color:rgba(0,255,65,0.3);color:var(--lime)">M3</div>
+            <div class="member-name">[ Member 3 ]</div>
+            <div class="member-role">Network Engineer</div>
+            <div class="member-pages">
+              Responsible for:<br/>
+              <strong>Network &amp; I/O Page</strong><br/>
+              Topology, hardware, OSI layers, TCP/IP, I/O devices.
+            </div>
+          </div>
+
+          <div class="member-card" style="border-top:2px solid #0080FF;--av-color:#0080FF">
+            <div class="member-avatar" style="border-color:rgba(0,128,255,0.3);color:#0080FF">M4</div>
+            <div class="member-name">[ Member 4 ]</div>
+            <div class="member-role">Systems Specialist</div>
+            <div class="member-pages">
+              Responsible for:<br/>
+              <strong>Virtualization Page</strong> &amp; <strong>Performance Page</strong><br/>
+              Hypervisor selection, containers, bottleneck analysis, final recommendation.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ══ ORG PROFILE ══ -->
+      <section class="section" id="profile">
+        <div class="section-label">
+          <span class="section-num">03</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Organization Profile</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">IT COMSEE Corp. — Client Overview</h2>
+        <p>IT COMSEE Corp. is a mid-sized company in active growth. Their current IT setup can no longer keep up with demand — making a full infrastructure overhaul both necessary and timely.</p>
+
+        <div class="highlight-block" style="margin-top:1.2rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem 2rem;">
+            <div>
+              <div style="font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;text-shadow:0 0 5px rgba(0,255,255,.3)">Workforce</div>
+              <p style="font-size:.8rem;color:var(--text)">80–120 employees across three departments: <strong>Administration</strong>, <strong>Operations</strong>, and <strong>IT Support</strong>.</p>
+            </div>
+            <div>
+              <div style="font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;text-shadow:0 0 5px rgba(0,255,255,.3)">Authentication</div>
+              <p style="font-size:.8rem;color:var(--text)">Requires centralized authentication and role-based file sharing across all departments.</p>
+            </div>
+            <div>
+              <div style="font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;text-shadow:0 0 5px rgba(0,255,255,.3)">Data Security</div>
+              <p style="font-size:.8rem;color:var(--text)">Needs secure backups and fault tolerance to ensure business continuity during hardware failures.</p>
+            </div>
+            <div>
+              <div style="font-family:'Oswald',sans-serif;font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;text-shadow:0 0 5px rgba(0,255,255,.3)">Expansion</div>
+              <p style="font-size:.8rem;color:var(--text)">Plans to deploy virtual machines or containers for service isolation and future scalability.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ REQUIREMENTS ══ -->
+      <section class="section" id="requirements">
+        <div class="section-label">
+          <span class="section-num">04</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">System Requirements</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">What the Platform Must Deliver</h2>
+        <p>Based on the case scenario, the proposed platform is evaluated against these core requirements. Check marks indicate requirements addressed in this proposal.</p>
+
+        <div class="req-grid">
+          <div class="req-item done">Centralized data storage for all departments</div>
+          <div class="req-item done">Multi-user access with role-based controls</div>
+          <div class="req-item done">Network-based services (file share, auth, DNS)</div>
+          <div class="req-item done">Process and resource management via OS</div>
+          <div class="req-item done">Virtualization / containerization support</div>
+          <div class="req-item done">Secure backups and fault tolerance</div>
+          <div class="req-item done">Hardware within PhP 10,000,000 budget</div>
+          <div class="req-item done">Scalable for future headcount growth</div>
+          <div class="req-item done">Centralized authentication services</div>
+          <div class="req-item done">Network segmentation per department (VLANs)</div>
+          <div class="req-item done">64-bit, x86 enterprise processor architecture</div>
+          <div class="req-item done">Performance evaluation with bottleneck analysis</div>
+        </div>
+      </section>
+
+      <!-- ══ CONSTRAINTS ══ -->
+      <section class="section" id="constraints">
+        <div class="section-label">
+          <span class="section-num">05</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Constraints</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Budget, Users &amp; Scalability</h2>
+        <p>Every recommendation in this proposal is shaped by three governing constraints. All hardware, software, and design decisions must stay within these boundaries.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:1.2rem;">
+
+          <div class="rec-card">
+            <div class="rec-label">Budget Ceiling</div>
+            <div class="rec-value">PhP 10,000,000</div>
+            <div class="rec-note">Hard cap across all components — hardware, software licenses, cabling, and implementation. No single category may exceed its allocated share.</div>
+          </div>
+
+          <div class="rec-card" style="--cyan:var(--magenta)">
+            <div class="rec-label">User Scale</div>
+            <div class="rec-value">80–120 Users</div>
+            <div class="rec-note">All network, storage, and compute capacity is sized for simultaneous peak load across the full 120-user ceiling, not the average.</div>
+          </div>
+
+          <div class="rec-card" style="--cyan:var(--lime)">
+            <div class="rec-label">Scalability</div>
+            <div class="rec-value">Future-Ready</div>
+            <div class="rec-note">All infrastructure choices must support organic growth — additional users, VMs, or storage — without requiring a full rebuild.</div>
+          </div>
+
+          <div class="rec-card" style="--cyan:#0080FF">
+            <div class="rec-label">Static Website</div>
+            <div class="rec-value">HTML + CSS</div>
+            <div class="rec-note">This deliverable is a static site only. No backend, no APIs, no frameworks. All content is original and written in the team's own words.</div>
+          </div>
+
+        </div>
+
+        <p style="margin-top:1.2rem;font-size:.8rem;color:var(--muted)">Additional technical constraints: all cited information includes proper references; diagrams are SVG or image-based; JavaScript is used for interactivity only (scroll tracking, counters, accordions).</p>
+      </section>
+
+      <!-- ══ BUDGET ══ -->
+      <section class="section" id="budget">
+        <div class="section-label">
+          <span class="section-num">06</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Budget Allocation</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">PhP 10,000,000 — How It's Distributed</h2>
+        <p>The total project budget is distributed across six categories. Each section of this proposal details exact component pricing within its allocated share.</p>
+
+        <div class="budget-rows" style="margin-top:1.4rem;">
+
+          <div class="brow">
+            <div class="brow-label">
+              <span class="brow-name">Processor &amp; Compute (Architecture)</span>
+              <span class="brow-val">₱3,000,000 · 30%</span>
+            </div>
+            <div class="brow-track"><div class="brow-fill" data-w="30" style="--b-color:var(--cyan)"></div></div>
+          </div>
+
+          <div class="brow">
+            <div class="brow-label">
+              <span class="brow-name">Storage — Primary &amp; Secondary</span>
+              <span class="brow-val">₱2,500,000 · 25%</span>
+            </div>
+            <div class="brow-track"><div class="brow-fill" data-w="25" style="--b-color:var(--magenta)"></div></div>
+          </div>
+
+          <div class="brow">
+            <div class="brow-label">
+              <span class="brow-name">Network &amp; I/O Infrastructure</span>
+              <span class="brow-val">₱2,000,000 · 20%</span>
+            </div>
+            <div class="brow-track"><div class="brow-fill" data-w="20" style="--b-color:var(--lime)"></div></div>
+          </div>
+
+          <div class="brow">
+            <div class="brow-label">
+              <span class="brow-name">Virtualization &amp; Containerization</span>
+              <span class="brow-val">₱1,500,000 · 15%</span>
+            </div>
+            <div class="brow-track"><div class="brow-fill" data-w="15" style="--b-color:#0080FF"></div></div>
+          </div>
+
+          <div class="brow">
+            <div class="brow-label">
+              <span class="brow-name">OS Licenses &amp; Software</span>
+              <span class="brow-val">₱600,000 · 6%</span>
+            </div>
+            <div class="brow-track"><div class="brow-fill" data-w="6" style="--b-color:#FF8000"></div></div>
+          </div>
+
+          <div class="brow">
+            <div class="brow-label">
+              <span class="brow-name">Implementation, Contingency &amp; Training</span>
+              <span class="brow-val">₱400,000 · 4%</span>
+            </div>
+            <div class="brow-track"><div class="brow-fill" data-w="4" style="--b-color:var(--muted)"></div></div>
+          </div>
+
+        </div>
+
+        <div class="highlight-block" style="margin-top:1.3rem">
+          <p style="font-size:.78rem;color:var(--muted)">All price ranges cited across the proposal reflect Philippine Peso (PHP) estimates sourced from vendor documentation and local market pricing as of AY 2025–2026. Actual procurement prices may vary.</p>
+        </div>
+      </section>
+
+      <!-- ══ PAGES ══ -->
+      <section class="section" id="pages">
+        <div class="section-label">
+          <span class="section-num">07</span>
+          <span style="font-size:.74rem;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.1em">Site Navigation</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Explore the Proposal</h2>
+        <p>Each page covers one major section of the infrastructure proposal. Click any card to navigate there.</p>
+
+        <div class="pages-grid">
+
+          <a href="index.html" class="page-card" style="--pc-color:var(--cyan)">
+            <div class="page-card-part">Overview · You are here</div>
+            <div class="page-card-title">Overview &amp; Organization Profile</div>
+            <div class="page-card-desc">Case background, team introduction, system requirements, budget distribution, and site navigation.</div>
+            <div class="page-card-author">Author: <span>[ Member 1 ]</span></div>
+            <span class="page-card-arrow">→</span>
+          </a>
+
+          <a href="architecture.html" class="page-card" style="--pc-color:var(--magenta)">
+            <div class="page-card-part">Part 1 &amp; 2 · Processor</div>
+            <div class="page-card-title">Architecture &amp; Processor Evaluation</div>
+            <div class="page-card-desc">x86 vs ARM, CISC vs RISC, core count, clock speed, word size, and CPU model recommendations within budget.</div>
+            <div class="page-card-author">Author: <span>[ Member 1 ]</span></div>
+            <span class="page-card-arrow">→</span>
+          </a>
+
+          <a href="storage.html" class="page-card" style="--pc-color:var(--lime)">
+            <div class="page-card-part">Part 2 · Storage</div>
+            <div class="page-card-title">Data Representation &amp; Storage Design</div>
+            <div class="page-card-desc">Primary RAM, secondary SSD/HDD, OS selection, file management, backup strategy, and fault tolerance methods.</div>
+            <div class="page-card-author">Author: <span>[ Member 2 ]</span></div>
+            <span class="page-card-arrow">→</span>
+          </a>
+
+          <a href="network.html" class="page-card" style="--pc-color:#0080FF">
+            <div class="page-card-part">Part 4 · Network</div>
+            <div class="page-card-title">Network &amp; I/O Technology Design</div>
+            <div class="page-card-desc">Hierarchical star topology, VLANs, OSI layers, TCP/IP addressing, hardware components, and I/O control mechanisms.</div>
+            <div class="page-card-author">Author: <span>[ Member 3 ]</span></div>
+            <span class="page-card-arrow">→</span>
+          </a>
+
+          <a href="virtualization.html" class="page-card" style="--pc-color:#FF8000">
+            <div class="page-card-part">Part 5 · Virtualization</div>
+            <div class="page-card-title">Virtualization &amp; Containerization</div>
+            <div class="page-card-desc">Hybrid VM + container approach, Proxmox hypervisor, Docker tooling, security design, and three-node cluster architecture.</div>
+            <div class="page-card-author">Author: <span>[ Member 4 ]</span></div>
+            <span class="page-card-arrow">→</span>
+          </a>
+
+          <a href="performance.html" class="page-card" style="--pc-color:#CC00FF">
+            <div class="page-card-part">Part 6 · Performance</div>
+            <div class="page-card-title">Performance Evaluation &amp; Final Recommendation</div>
+            <div class="page-card-desc">CPU utilization, memory usage, storage throughput, bottleneck analysis, optimization strategies, and final system recommendation.</div>
+            <div class="page-card-author">Author: <span>[ Member 4 ]</span></div>
+            <span class="page-card-arrow">→</span>
+          </a>
+
+        </div>
+
+        <p style="margin-top:1.3rem;font-size:.75rem;color:var(--muted)">
+          <span style="color:var(--lime);font-weight:700">✔ Live</span> — architecture, network, virtualization pages are complete.
+          &nbsp;·&nbsp;
+          <span style="color:#FF8000;font-weight:700">◌ Pending</span> — storage and performance pages are placeholders awaiting content.
+        </p>
+      </section>
+
+    </main>
+
+    <footer>
+      <span>IT COMSEE Corp. // Infrastructure Proposal · Term 2 AY 2025–2026</span>
+      <span>Overview &amp; Index &nbsp;|&nbsp; ITCMSY1 · Group 7</span>
+    </footer>
+  </div>
+</div>
+
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+<script>
+/* SCROLL: PROGRESS + SIDEBAR + BTT */
+const sbls  = document.querySelectorAll('.sbl');
+const sects = document.querySelectorAll('section.section');
+const prog  = document.getElementById('prog-bar');
+const pfill = document.getElementById('progress');
+const btt   = document.getElementById('btt');
+
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const pct  = Math.min(scrollTop / docH * 100, 100);
+  prog.style.width  = pct + '%';
+  if (pfill) pfill.style.width = pct + '%';
+  btt.classList.toggle('show', scrollTop > 500);
+  let cur = '';
+  sects.forEach(s => { if (s.getBoundingClientRect().top < 130) cur = s.id; });
+  sbls.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + cur));
+}, { passive: true });
+
+/* ANIMATED COUNTER */
+function animateCounter(el) {
+  const target   = parseFloat(el.dataset.t);
+  const isFloat  = el.dataset.float === '1';
+  const dur = 1100; const start = performance.now();
+  (function step(now) {
+    const p = Math.min((now - start) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = isFloat
+      ? (target * e).toFixed(1)
+      : Math.round(target * e);
+    if (p < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+/* INTERSECTION OBSERVER */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.querySelectorAll('.brow-fill[data-w]').forEach(b => { b.style.width = b.dataset.w + '%'; });
+    entry.target.querySelectorAll('.ctr[data-t]').forEach(c => { if (c._done) return; c._done = true; animateCounter(c); });
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.section, .hero').forEach(s => io.observe(s));
+</script>
+</body>
+</html>
