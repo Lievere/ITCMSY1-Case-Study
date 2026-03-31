@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Performance Analysis | IT COMSEE Corp.</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Oswald:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="ITCMSYstyle.css"/>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-logo">IT COMSEE Corp.</div>
+  <div class="nav-links">
+    <a href="overviewPage.html">Overview</a>
+    <a href="architecture.html">Architecture</a>
+    <a href="storage.html">Storage</a>
+    <a href="network.html">Network</a>
+    <a href="virtualization.html">Virtualization</a>
+    <a href="performance.html" class="active">Performance</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-label">On This Page</div>
+    <a href="#intro" class="sbl active"><span class="dot"></span>Overview</a>
+    <a href="#cpu" class="sbl"><span class="dot"></span>CPU Utilization</a>
+    <a href="#memory" class="sbl"><span class="dot"></span>Memory Usage</a>
+    <a href="#storage" class="sbl"><span class="dot"></span>Storage Throughput</a>
+    <a href="#weakness" class="sbl"><span class="dot"></span>Weaknesses</a>
+    <a href="#optimize" class="sbl"><span class="dot"></span>Optimization</a>
+    <a href="#final" class="sbl"><span class="dot"></span>Final Recommendation</a>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+      <div class="progress-label">Reading progress</div>
+    </div>
+  </aside>
+
+  <div class="main-content">
+
+    <header class="hero">
+      <div class="page-tag">Part 5: Performance Evaluation</div>
+      <h1 class="hero-title">Like Cinderella’s Shoes: Is Our Infrastructure The Perfect Fit For IT COMSEE?<br/><span>Performance Analysis</span></h1>
+      <p class="hero-sub">
+        A detailed evaluation of IT COMSEE Corp.'s proposed infrastructure performance, including resource utilization, potential bottlenecks, and optimization strategies.
+      </p>
+      <div class="author-badge"> Authored by <strong>[ Group 7 ]</strong> &nbsp;&nbsp;</div>
+    </header>
+
+    <main>
+
+      <section class="section" id="intro">
+        <div class="section-label">
+          <span class="section-num">01</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">small overview</h2>
+
+        <p>Now that we’ve laid out the solid plans, let’s get to the real-deal: how bright is IT COMSEE’s future with our current proposed IT Infrastructure?</p>
+
+        <h3 class="sub-title">A Big Test Case</h3>
+        <p>Here’s a harsh truth for many IT consulting companies: designing the infrastructure for an enterprise is only half the battle. The real fight is when we finally test how effective our product is when it comes to real-world uses. This would involve the handling of thousands of users, running VMs, and keeping up in the midst of heavy workloads and security risks.</p>
+        <p>As we evaluate our brand new infrastructure, let us analyze the inner workings through CPU Utilization, memory usage, and storage throughput.</p>
+      </section>
+      <div class="image-block">
+        <img src="images/data-center.jpg" alt="Data Center">
+        <p class="image-caption">Modern data center handling large-scale workloads</p>
+        </div>
+      <section class="section" id="cpu">
+        <div class="section-label">
+          <span class="section-num">02</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">CPU Utilization</h2>
+
+        <p>For this infrastructure, the workarounds stand on top of three enterprise quality servers that form a compute cluster, each server equipped with multi-core processors that total to 96 cores across the system.</p>
+        <p>For enterprises like ITCOMSEE, CPU use would likely swing around 50%-65% under normal workloads.</p>
+        <p>This means that the corporation can enjoy benefits like:</p>
+        <p>VMs running smoothly</p>
+        <p>Minimal delayed processes for faster work</p>
+        <p>Enough headroom for heavier duty workloads</p>
+        <p>Thanks to utilizing three servers, the system can avoid overloading and allow for efficient processing and faster response times.</p>
+      </section>
+    <div class="image-block fade-in">
+    <img src="images/server-rack.jpg" alt="Server Rack">
+    <p class="image-caption">Multi-core enterprise servers in a clustered setup</p>
+    </div>
+      <section class="section" id="memory">
+        <div class="section-label">
+          <span class="section-num">03</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Memory Usage</h2>
+
+        <p>Memory is one of the most important factors for proper virtualization. As each server is equipped with over 256GB of RAM, the system can enjoy a total of 768GB of available memory.</p>
+        <p>Similar to the CPU, virtual machines only take up 50%-60% of total memory. This means that the system will have more allocable memory for:</p>
+        <p>Failover scenarios, such as in emergencies and unexpected situations</p>
+        <p>VM migration for maintenance and repair</p>
+        <p>Future workload expansion during upgrades</p>
+        <p>This will prevent “bottlenecks” and keep services up even when one server is offline.</p>
+            <div class="image-block fade-in">
+    <img src="images/ram-server.jpg" alt="Server Memory Modules">
+    <p class="image-caption">High-capacity RAM supporting virtualization</p>
+    </div>
+    </section>
+
+      <section class="section" id="storage">
+        <div class="section-label">
+          <span class="section-num">04</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Storage Throughput</h2>
+
+        <p>The proposed system for ITCOMSEE comes in a tiered storage architecture, which combines the pros of SSD and HDD technology to provide storage needs.</p>
+        <p>This is advantageous for companies because SSDs can efficiently store frequently accessed data, as well as the dynamic needs of VMs. HDDs, meanwhile, come in handy for bulk files and backup technology— elements that ITCOMSEE will need to streamline their workflow.</p>
+        <p>And speaking of backups, the proposed infrastructure also comes with RAID 10 and RAID 6 technology, famous for speed and redundancy for SSDs, as well as in HDD fault tolerance (respectively).</p>
+        <p>These technologies work together to ensure that data can be accessed easily and quickly, all while they are secured and handled efficiently regardless of how busy the team gets.</p>
+      </section>
+
+      <section class="section" id="weakness">
+        <div class="section-label">
+          <span class="section-num">05</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Could There Be Any Weaknesses?</h2>
+
+        <h3 class="sub-title">CPU Bottlenecks</h3>
+        <p>The CPU may be overloaded if there are simply too many tasks and processes to handle for the server. Though it is capable of handling enough for midsized enterprises, balancing is a must.</p>
+        <p>To solve this, it is necessary for ITCOMSEE to distribute these workloads efficiently across each server, preferably via load balancing mechanisms that would delegate tasks to the right servers.</p>
+
+        <h3 class="sub-title">Memory Bottlenecks</h3>
+        <p>It’s simple— as CPUs process instructions</p>
+
+        <h3 class="sub-title">Storage Bottlenecks</h3>
+        <p>If too much or too little RAM is allocated to a single virtual machine, performance issues may arise.</p>
+        <p>To solve this, ITCOMSEE’s IT Maintenance must monitor memory usage regularly and adjust VM allocated RAM based on demand and usage statistics.</p>
+
+        <h3 class="sub-title">Storage Bottlenecks</h3>
+        <p>Like that of the CPU, overloading the storage systems with high volumes of traffic/read and write operations may cause congestion within the NAS.</p>
+        <p>ITCOMSEE must remember to make the most out of their advanced storage units by utilizing SSD caching, as well as understanding the best cases of when to use the SSD and HDD units present in their storage system.</p>
+
+        <h3 class="sub-title">Network Bottlenecks</h3>
+        <p>It’s simple— as CPUs process instructions</p>
+        <p>Our solution for this is to implement 10Gb network connections, allowing for proper data flow and processing within the infrastructure. We would also suggest improving the network with dedicated network segments for storage traffic, as well as considering future upgrades in expanding the network should the opportunity finally arise.</p>
+      </section>
+
+      <section class="section" id="optimize">
+        <div class="section-label">
+          <span class="section-num">06</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">How Can This System Be Optimized?</h2>
+
+        <p>As IT professionals, here are some recommendations to make the most out of ITCOMSEE’s future infrastructure.</p>
+        <p>First, the company can utilize their servers by balancing each’s workload, making sure all work at their best.</p>
+        <p>Efficient VM resource allocation also comes a long way, keeping CPU and storage lifespans alive.</p>
+        <p>The tiered storage design gives ITCOMSEE the wiggle room to access data faster and safer.</p>
+        <p>Thanks to the network design and wired/wireless capabilities, ITCOMSEE can manage congestion through network segmentation or VLANs.</p>
+        <p>Through modern monitoring tools and a bigger pool of professionals, ITCOMSEE can make use of IT teams equipped with software and knowledge to maintain this server with the care it needs.</p>
+      </section>
+
+      <section class="section" id="final">
+        <div class="section-label">
+          <span class="section-num">07</span>
+          <div class="section-divider"></div>
+        </div>
+        <h2 class="section-title">Final Recommendation</h2>
+
+        <p>Given the reliability of the proposed system’s brands and designs, ITCOMSEE Corp. is in good hands— enjoying reliable and scalable solutions for the company.</p>
+        <p>Thanks to the three-node server cluster, complete with a centralized storage system and a structured network, this infrastructure will be more than capable of handling 80-120 employees, running several VMs with ease, maintaining high availability, and the ability to scale alongside the company’s growth.</p>
+        <p>As long as CPU and memory are optimized, tiered storage is utilized, and bottlenecks are addressed, this system will continue to challenge time by exceeding expectations through top-tier performance.</p>
+        <p>The company can safely expect and be assured of a well-performing environment aligning with current operational needs and long-term expansion goals.</p>
+
+        <h3 class="sub-title">Our Parting Words</h3>
+        <p>As we continue to support ITCOMSEE’s mission and vision, may we entrust this proposed network as a powerful, balanced, and future-ready system built to keep up with the world’s demands.</p>
+        <p>If our proposal could speak, it’d probably say one thing:</p>
+        <p>Hello world!</p>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
